@@ -298,9 +298,10 @@ export default function AvatarDropdown({ className = "" }: Props) {
                           />
                         </svg>
                       </div>
+                      <Link href={"/signin"}>
                       <div className="ml-4">
                         <p className="text-sm font-medium ">{"Log out"}</p>
-                      </div>
+                      </div></Link>
                     </Link>
                   </div>
                 </div>
