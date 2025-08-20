@@ -301,7 +301,7 @@ export default function AvatarDropdown({ className = "" }: Props) {
                       <Link href={"/signin"}>
                       <div className="ml-4">
                         <p className="text-sm font-medium ">{"Log out"}</p>
-                      </div></Link>
+                       </div></Link>
                     </Link>
                   </div>
                 </div>
@@ -313,3 +313,4 @@ export default function AvatarDropdown({ className = "" }: Props) {
     </>
   );
 }
+
