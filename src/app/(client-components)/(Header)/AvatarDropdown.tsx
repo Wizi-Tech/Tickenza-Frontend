@@ -18,7 +18,7 @@ export default function AvatarDropdown({ className = "" }: Props) {
     <>
       {!isLoggedIn ? (
         <Button
-          className="bg-sky-400 rounded-xl "
+          className="bg-primary-500 rounded-xl text-white"
           onClick={() => router.push("/signin")}
         >
           Sign In
