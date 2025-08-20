@@ -13,13 +13,14 @@ import travelhero2Image from "@/images/travelhero2.png";
 import Link from "next/link";
 import { Route } from "@/routers/types";
 
-const Page = ({
+const Page = async ({
   params,
   searchParams,
 }: {
-  params: { stepIndex: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
+  params: Promise<{ slug: string[] }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
+  const paramSlug = await params;
   const renderHeader = () => {
     return (
       <header className="container rounded-xl">
