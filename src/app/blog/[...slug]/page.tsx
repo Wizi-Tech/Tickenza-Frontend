@@ -17,10 +17,9 @@ const Page = async ({
   params,
   searchParams,
 }: {
-  params: Promise<{ slug: string[] }>;
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+  params: { stepIndex: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }) => {
-  const paramSlug = await params;
   const renderHeader = () => {
     return (
       <header className="container rounded-xl">

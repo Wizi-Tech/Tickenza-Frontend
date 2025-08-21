@@ -14,12 +14,12 @@ const Page = async ({
   params,
   searchParams,
 }: {
-  params: Promise<{ stepIndex?: string[] }>;
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+  params: { stepIndex: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }) => {
   let ContentComponent = PageAddListing1;
-  const param = await params;
-  switch (Number(param.stepIndex?.[0] || "1")) {
+
+  switch (Number(params.stepIndex)) {
     case 1:
       ContentComponent = PageAddListing1;
       break;

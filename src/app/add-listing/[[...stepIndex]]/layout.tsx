@@ -6,12 +6,13 @@ import { Route } from "@/routers/types";
 
 export interface CommonLayoutProps {
   children: React.ReactNode;
-  params: Promise<{ stepIndex?: string[] }>;
+  params: {
+    stepIndex: string;
+  };
 }
 
 const CommonLayout = async ({ children, params }: CommonLayoutProps) => {
-  const resolvedParams = await params;
-  const index = Number(resolvedParams.stepIndex) || 1;
+  const index = Number(params.stepIndex) || 1;
   const nextHref = (
     index < 10 ? `/add-listing/${index + 1}` : `/add-listing/${1}`
   ) as Route;
