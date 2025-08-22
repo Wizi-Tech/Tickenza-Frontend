@@ -14,6 +14,7 @@ function LoginPage() {
     setLoading(true);
 
     try {
+      setLoading(true);
       const res = await axios.post("https://tickenza-app.onrender.com/login", {
         username,
         password,
@@ -22,9 +23,10 @@ function LoginPage() {
       if (res.status === 200) {
         toast.success("Login Successful!");
       } else {
-        toast.error(res.data?.message || "Invalid credentials");
+        toast.error("Invalid credentials");
       }
     } catch (err) {
+      setLoading(false);
       console.error("Error logging in:", err);
       toast.error("Server Error! Please try again later.");
     } finally {
@@ -39,24 +41,48 @@ function LoginPage() {
       <div className="flex justify-center items-center h-screen bg-gray-200">
         <div className="bg-white p-6 rounded shadow w-80 relative">
           <div className="flex justify-center mb-4">
-            <img src="/Tickenza.png" alt="Tickenza Logo" className="h-16 w-16 object-contain"/>
+            <img
+              src="/Tickenza.png"
+              alt="Tickenza Logo"
+              className="h-16 w-16 object-contain"
+            />
           </div>
 
-          <h2 className="text-xl font-bold mb-4 text-center">Welcome to Tickenza</h2>
-          <p className="text-m text-gray-600 mb-6 text-center">Please login to continue</p>
+          <h2 className="text-xl font-bold mb-4 text-center">
+            Welcome to Tickenza
+          </h2>
+          <p className="text-m text-gray-600 mb-6 text-center">
+            Please login to continue
+          </p>
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label className="text-black block mb-1">User ID</label>
-              <input type="text" placeholder="Enter User ID" value={username}onChange={(e) => setUsername(e.target.value)}className="text-gray-700 border w-full p-2 rounded focus:outline-none focus:ring-0 focus:border-gray-700"/>
+              <input
+                type="text"
+                placeholder="Enter User ID"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="text-gray-700 border w-full p-2 rounded focus:outline-none focus:ring-0 focus:border-gray-700"
+              />
             </div>
 
             <div className="mb-3">
               <label className="text-black block mb-1">Password</label>
-              <input type="password" placeholder="Enter Password"value={password} onChange={(e) => setPassword(e.target.value)} className="text-gray-700 border w-full p-2 rounded focus:outline-none focus:ring-0 focus:border-gray-700"/>
+              <input
+                type="password"
+                placeholder="Enter Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="text-gray-700 border w-full p-2 rounded focus:outline-none focus:ring-0 focus:border-gray-700"
+              />
             </div>
 
-            <button type="submit" disabled={loading} className="bg-blue-500 text-white w-full py-2 rounded disabled:opacity-70">
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-blue-500 text-white w-full py-2 rounded disabled:opacity-70"
+            >
               {loading ? "Loading..." : "Login"}
             </button>
           </form>
