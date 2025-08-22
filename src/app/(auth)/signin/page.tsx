@@ -21,13 +21,13 @@ function LoginPage() {
       console.log("login response:", data);
 
       if (res.ok) {
-        setMessage(" Login completed!");
+        setMessage(" Login successful!");
       } else {
         setMessage(` ${data.error || "Invalid credentials"}`);
       }
     } catch (err) {
       console.error("Error logging in:", err);
-      setMessage("❌ Something went wrong. Try again.");
+      setMessage(" Something went wrong. Try again.");
     }
   };
 
