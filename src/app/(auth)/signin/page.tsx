@@ -10,10 +10,9 @@ function LoginPage()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); 
-    console.log("Login button clicked");
 
      try {
-      const res = await fetch("/api/login",{
+      const res = await fetch("https://tickenza-app.onrender.com/login",{
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

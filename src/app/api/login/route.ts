@@ -2,7 +2,7 @@ export async function POST(request: Request) {
   const { username, password } = await request.json();
 
   try {
-    const backendRes = await fetch("https://tickenza-app.onrender.com/login", {
+    const backendRes = await fetch("https://tickenza-app.onrender.com", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       
