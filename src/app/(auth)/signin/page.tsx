@@ -32,7 +32,7 @@ function LoginPage()
       <div className="bg-white p-6 rounded shadow w-80">
 
         <div className="flex justify-center mb-4"> 
-         <img src="/Tickenza_Logo.png" alt="Tickenza Logo" className="h-16 w-16 object-contain"/>
+         <img src="/Tickenza.png" alt="Tickenza Logo" className="h-16 w-16 object-contain"/>
         </div>
         
         <h2 className="text-xl font-bold mb-4 text-center"> Welcome to Tickenza</h2>
