@@ -1,13 +1,12 @@
-import "./globals.css";
-import Nav from "@/components/Nav";
+import { AppToaster } from "@/components/ui/toaster"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <Nav />
-        <main>{children}</main>
+        {children}
+        <AppToaster />
       </body>
     </html>
-  );
+  )
 }
