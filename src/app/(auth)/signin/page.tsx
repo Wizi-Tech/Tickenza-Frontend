@@ -2,16 +2,17 @@
 
 import React, { useState } from "react";
 
-function LoginPage() {
+function LoginPage() 
+{
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); 
 
-    try {
-      const res = await fetch("/api/login", {
+     try {
+      const res = await fetch("/api/login",{
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -19,65 +20,45 @@ function LoginPage() {
 
       const data = await res.json();
       console.log("login response:", data);
-
-      if (res.ok) {
-        setMessage(" Login successful!");
-      } else {
-        setMessage(` ${data.error || "Invalid credentials"}`);
-      }
-    } catch (err) {
+      
+    } 
+    catch (err) {
       console.error("Error logging in:", err);
-      setMessage(" Something went wrong. Try again.");
     }
   };
 
-  return (
-    <div className="flex justify-center items-center h-screen bg-gray-200">
+  return(
+    < div className="flex justify-center items-center h-screen bg-gray-200">
       <div className="bg-white p-6 rounded shadow w-80">
-        <div className="flex justify-center mb-4">
-          <img src="/Tickenza.png" alt="Tickenza Logo" className="h-16 w-16 object-contain"/>
+
+        <div className="flex justify-center mb-4"> 
+         <img src="/Tickenza_Logo.png" alt="Tickenza Logo" className="h-16 w-16 object-contain"/>
         </div>
-
-        <h2 className="text-xl font-bold mb-4 text-center">Welcome to Tickenza</h2>
-        <p className="text-m text-gray-600 mb-6 text-center">Please login to continue</p>
-
+        
+        <h2 className="text-xl font-bold mb-4 text-center"> Welcome to Tickenza</h2>
+        <p className="text-m text-gray-600 mb-6 text-center">Please login to continue </p>
+ 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label className="text-black block mb-1">User ID</label>
-            <input 
-              type="text" 
-              placeholder="Enter User ID" 
-              value={username} 
-              onChange={(e) => setUsername(e.target.value)} 
-              className="text-gray-700 border w-full p-2 rounded focus:outline-none focus:ring-0 focus:border-gray-700"
-            />
-          </div>
-
+            <input type="text" placeholder="Enter User ID" value={username} onChange={(e) => setUsername(e.target.value)} className="text-gray-700 border w-full p-2 rounded focus:outline-none focus:ring-0 focus:border-gray-700"/>
+          </div>  
+             
           <div className="mb-3">
             <label className="text-black block mb-1">Password</label>
-            <input 
-              type="password" 
-              placeholder="Enter Password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              className="text-gray-700 border w-full p-2 rounded focus:outline-none focus:ring-0 focus:border-gray-700"
-            />
+            <input type="password" placeholder="Enter Password" value={password} onChange={(e) => setPassword(e.target.value)} className="text-gray-700 border w-full p-2 rounded focus:outline-none focus:ring-0 focus:border-gray-700"/>
           </div>
 
-          <button type="submit" className="bg-blue-500 text-white w-full py-2 rounded">
-            Login
-          </button>
+          <button type="submit" className="bg-blue-500 text-white w-full py-2 rounded"> Login</button>
         </form>
-
-        {message && <p className="text-center mt-3 text-sm text-red-500">{message}</p>}
 
         <p className="text-black text-sm text-center mt-4">
           Don't have an account?{" "}
-          <a href="/signup" className="text-blue-500">Signup</a>
+          <a href="/signup" className="text-blue-500">signup</a> 
         </p>
       </div>
     </div>
   );
 }
 
-export default LoginPage;
+export default LoginPage
