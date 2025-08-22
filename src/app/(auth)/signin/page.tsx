@@ -21,7 +21,7 @@ function LoginPage() {
       console.log("login response:", data);
 
       if (res.ok) {
-        setMessage("✅ Login successful!");
+        setMessage("✅ Login completed!");
       } else {
         setMessage(`❌ ${data.error || "Invalid credentials"}`);
       }
