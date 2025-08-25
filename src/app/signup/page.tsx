@@ -6,7 +6,7 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function SignUpModal() {
-  const [isOpen, setIsOpen] = useState(true); // modal open state
+  const [isOpen, setIsOpen] = useState(true); 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -32,7 +32,7 @@ export default function SignUpModal() {
       if (res.status === 200) {
         toast.success("Signup completed!");
         setTimeout(() => {
-          setIsOpen(false); // close modal after success
+          setIsOpen(false); 
         }, 2000);
       }
     } catch (err) {
@@ -48,23 +48,18 @@ export default function SignUpModal() {
       <Toaster position="top-center" />
       {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
-          {/* Backdrop */}
+          
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           ></div>
-
-          {/* Modal */}
           <div className="relative bg-white p-6 rounded-xl shadow-lg w-96 z-10">
-            {/* Close button */}
             <button
               onClick={() => setIsOpen(false)}
               className="absolute top-3 right-3 text-gray-500 hover:text-black"
             >
               X
             </button>
-
-            {/* Logo */}
             <div className="flex justify-center mb-4">
               <img
                 src="/Tickenza.png"
@@ -79,8 +74,6 @@ export default function SignUpModal() {
             <p className="text-gray-500 text-center mb-6">
               Please signup to continue
             </p>
-
-            {/* Signup Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="text-black block mb-1">Name</label>

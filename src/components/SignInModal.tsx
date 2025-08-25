@@ -14,7 +14,7 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }: Props) 
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  if (!isOpen) return null; // ✅ only render when open
+  if (!isOpen) return null; 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,8 +22,8 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }: Props) 
       const res = await loginUser({ email, password });
       localStorage.setItem("token", res.data.token);
       onLoginSuccess();
-      onClose(); // ✅ close after login
-      alert("Sign in successful ✅");
+      onClose(); 
+      alert("Sign in successful ");
     } catch (err) {
       setError("Invalid email or password");
     }
@@ -32,13 +32,12 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }: Props) 
   return (
     <div
       className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm z-50"
-      onClick={onClose} // ✅ click outside closes modal
+      onClick={onClose} 
     >
       <div
         className="relative bg-white p-6 rounded-2xl shadow-lg w-96"
-        onClick={(e) => e.stopPropagation()} // ❌ stop closing when clicking inside box
+        onClick={(e) => e.stopPropagation()} 
       >
-        {/* Close button */}
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
@@ -71,7 +70,7 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }: Props) 
             <button
               type="button"
               className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
-              onClick={onClose} // ✅ cancel closes modal
+              onClick={onClose} 
             >
               Cancel
             </button>

@@ -15,7 +15,7 @@ export default function Nav() {
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
-    setShowModal(false); // ✅ close after login
+    setShowModal(false); 
   };
 
   const handleLogout = () => {
@@ -31,7 +31,7 @@ export default function Nav() {
         {!isLoggedIn ? (
           <button
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-            onClick={() => setShowModal(true)} // ✅ open modal
+            onClick={() => setShowModal(true)} 
           >
             Sign In
           </button>
@@ -39,8 +39,6 @@ export default function Nav() {
           <AvatarDropdown onLogout={handleLogout} />
         )}
       </div>
-
-      {/* ✅ Modal should receive correct props */}
       <SignInModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}

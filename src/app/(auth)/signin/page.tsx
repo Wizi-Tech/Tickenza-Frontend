@@ -166,8 +166,6 @@ function AuthPage({ onClose }: { onClose: () => void }) {
               </button>
             </form>
           )}
-
-          {/* Toggle */}
           <p className="text-black text-sm text-center mt-4">
             {isSignup ? (
               <>
