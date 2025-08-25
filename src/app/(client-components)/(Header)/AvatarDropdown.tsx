@@ -17,12 +17,20 @@ export default function AvatarDropdown({ className = "" }: Props) {
   return (
     <>
       {!isLoggedIn ? (
+        <div className="flex gap-3">
         <Button
           className="bg-primary-500 rounded-xl text-white"
           onClick={() => router.push("/signin")}
         >
           Sign In
         </Button>
+        <Button
+          className="bg-primary-500 rounded-xl text-white"
+          onClick={() => router.push("/signup")}
+        >
+          Sign UP
+        </Button>
+      </div>
       ) : (
         <Popover className={`AvatarDropdown relative flex ${className}`}>
           {({ open, close }) => (

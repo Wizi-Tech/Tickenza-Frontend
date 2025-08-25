@@ -14,7 +14,7 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }: Props) 
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  if (!isOpen) return null;
+  if (!isOpen) return null; // ✅ only render when open
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +22,7 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }: Props) 
       const res = await loginUser({ email, password });
       localStorage.setItem("token", res.data.token);
       onLoginSuccess();
-      onClose();
+      onClose(); // ✅ close after login
       alert("Sign in successful ✅");
     } catch (err) {
       setError("Invalid email or password");
@@ -30,10 +30,25 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }: Props) 
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm z-50">
-      <div className="bg-white p-6 rounded-2xl shadow-lg w-96">
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm z-50"
+      onClick={onClose} // ✅ click outside closes modal
+    >
+      <div
+        className="relative bg-white p-6 rounded-2xl shadow-lg w-96"
+        onClick={(e) => e.stopPropagation()} // ❌ stop closing when clicking inside box
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+        >
+          ✕
+        </button>
+
         <h2 className="text-xl font-bold mb-4">Sign In</h2>
         {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
@@ -51,11 +66,12 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }: Props) 
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+
           <div className="flex justify-between">
             <button
               type="button"
-              className="px-4 py-2 bg-gray-300 rounded-lg"
-              onClick={onClose}
+              className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+              onClick={onClose} // ✅ cancel closes modal
             >
               Cancel
             </button>

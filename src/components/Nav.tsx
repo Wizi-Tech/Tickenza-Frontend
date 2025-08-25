@@ -13,7 +13,11 @@ export default function Nav() {
     if (token) setIsLoggedIn(true);
   }, []);
 
-  const handleLoginSuccess = () => setIsLoggedIn(true);
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+    setShowModal(false); // ✅ close after login
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
@@ -27,7 +31,7 @@ export default function Nav() {
         {!isLoggedIn ? (
           <button
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-            onClick={() => setShowModal(true)}
+            onClick={() => setShowModal(true)} // ✅ open modal
           >
             Sign In
           </button>
@@ -36,6 +40,7 @@ export default function Nav() {
         )}
       </div>
 
+      {/* ✅ Modal should receive correct props */}
       <SignInModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
