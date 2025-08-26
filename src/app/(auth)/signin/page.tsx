@@ -43,9 +43,14 @@ export default function SignInPage() {
       } else {
         toast.error("Invalid credentials");
       }
-    } catch (err) {
-      console.error("Error logging in:", err);
-      toast.error("Server Error! Please try again later.");
+    } catch (err: any) {
+  console.error("Error logging in:", err);
+
+
+  const errorMessage =
+    err.response?.data?.message || "Server Error! Please try again later.";
+
+  toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

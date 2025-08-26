@@ -53,9 +53,13 @@ export default function SignUpPage() {
         toast.success("Signup completed!");
         router.push("/signin");
       }
-    } catch (err) {
-      console.error("Error signing up:", err);
-      toast.error("Signup failed! Try again.");
+    } catch (err: any) {
+  console.error("Error signing up:", err);
+
+  const errorMessage =
+    err.response?.data?.message || "Signup failed! Try again.";
+
+  toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
