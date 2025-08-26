@@ -5,6 +5,13 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth";
+
+type AuthResponse = {
+  name: string;
+  username: string;
+  token: string;
+};
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -15,6 +22,7 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,15 +33,25 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      const res = await axios.post("https://tickenza-app.onrender.com/signup", {
-        name: formData.name,
-        username: formData.username,
-        password: formData.password,
-      });
+      const res = await axios.post<AuthResponse>("https://tickenza-app.onrender.com/signup",
+        {
+          name: formData.name,
+          username: formData.username,
+          password: formData.password,
+        }
+      );
 
       if (res.status === 200) {
+        const data = res.data; 
+
+        setUser({
+          name: data.name,
+          username: data.username,
+          token: data.token,
+        });
+
         toast.success("Signup completed!");
-        router.push("/signin"); 
+        router.push("/signin");
       }
     } catch (err) {
       console.error("Error signing up:", err);

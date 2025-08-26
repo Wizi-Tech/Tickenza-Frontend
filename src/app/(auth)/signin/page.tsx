@@ -5,6 +5,13 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth";
+
+type AuthResponse = {
+  name: string;
+  username: string;
+  token: string;
+};
 
 export default function SignInPage() {
   const [username, setUsername] = useState("");
@@ -12,17 +19,25 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post("https://tickenza-app.onrender.com/login", {
-        username,
-        password,
-      });
+      const res = await axios.post<AuthResponse>("https://tickenza-app.onrender.com/login",
+        { username, password }
+      );
 
       if (res.status === 200) {
+        const data = res.data; 
+
+        setUser({
+          name: data.name,
+          username: data.username,
+          token: data.token,
+        });
+
         toast.success("Login Successful!");
         router.push("/");
       } else {
@@ -42,7 +57,7 @@ export default function SignInPage() {
       <div className="fixed inset-0 flex items-center justify-center z-50">
         <div
           className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-          onClick={() => router.push("/")} 
+          onClick={() => router.push("/")}
         ></div>
 
         <div className="relative bg-white p-6 rounded-xl shadow-lg w-96 z-10">
@@ -77,6 +92,7 @@ export default function SignInPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="text-gray-700 border w-full p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               />
             </div>
 
@@ -88,6 +104,7 @@ export default function SignInPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="text-gray-700 border w-full p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               />
             </div>
 
