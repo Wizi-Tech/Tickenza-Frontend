@@ -41,7 +41,8 @@
     "sass": "^1.62.1",
     "server-only": "^0.0.1",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@types/axios": "^0.9.36",
