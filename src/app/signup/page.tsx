@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
+import { AuthService } from "@/services/authService";  
 
 type AuthResponse = {
   name: string;
@@ -19,8 +20,8 @@ export default function SignUpPage() {
     password: "",
   });
   const [loading, setLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(true); 
 
+  const router = useRouter();
   const setUser = useAuthStore((state) => state.setUser);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,39 +33,27 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      const res = await axios.post<AuthResponse>("https://tickenza-app.onrender.com/signup",
-        {
-          name: formData.name,
-          username: formData.username,
-          password: formData.password,
-        }
-      );
+      const res = await AuthService.signup({
+        name: formData.name,
+        username: formData.username,
+        password: formData.password,
+      });
 
       if (res.status === 200) {
-        const data = res.data;
+        const data = res.data as AuthResponse;
 
-        setUser({
-          name: data.name,
-          username: data.username,
-          token: data.token,
-        });
-
-        toast.success("Signup completed!");
-        setIsOpen(false); 
+        toast.success("Signup Sucessful!");
+        router.push("/signin");
       }
     } catch (err: any) {
       console.error("Error signing up:", err);
-
       const errorMessage =
         err.response?.data?.message || "Signup failed! Try again.";
-
       toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
-
-  if (!isOpen) return null; 
 
   return (
     <>
@@ -72,15 +61,15 @@ export default function SignUpPage() {
       <div className="fixed inset-0 flex items-center justify-center z-50">
         <div
           className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-          onClick={() => setIsOpen(false)}
+          onClick={() => router.push("/")}
         ></div>
 
         <div className="relative bg-white p-6 rounded-xl shadow-lg w-96 z-10">
           <button
-            onClick={() => setIsOpen(false)} 
+            onClick={() => router.push("/")}
             className="absolute top-3 right-3 text-gray-500 hover:text-black text-lg font-bold"
           >
-            ✕
+            X
           </button>
 
           <div className="flex justify-center mb-4">
@@ -141,7 +130,7 @@ export default function SignUpPage() {
               disabled={loading}
               className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
-              {loading ? "Signing up..." : "Signup"}
+              {loading ? "Loading..." : "Signup"}
             </button>
           </form>
 

@@ -1,4 +1,3 @@
-// src/services/authService.ts
 import API from "./api";
 
 type SigninPayload = { username: string; password: string };
