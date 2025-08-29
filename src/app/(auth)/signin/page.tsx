@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
 
 type AuthResponse = {
@@ -17,8 +16,8 @@ export default function SignInPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(true); 
 
-  const router = useRouter();
   const setUser = useAuthStore((state) => state.setUser);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -30,7 +29,7 @@ export default function SignInPage() {
       );
 
       if (res.status === 200) {
-        const data = res.data; 
+        const data = res.data;
 
         setUser({
           name: data.name,
@@ -39,22 +38,23 @@ export default function SignInPage() {
         });
 
         toast.success("Login Successful!");
-        router.push("/");
+        setIsOpen(false); 
       } else {
         toast.error("Invalid credentials");
       }
     } catch (err: any) {
-  console.error("Error logging in:", err);
+      console.error("Error logging in:", err);
 
+      const errorMessage =
+        err.response?.data?.message || "Server Error! Please try again later.";
 
-  const errorMessage =
-    err.response?.data?.message || "Server Error! Please try again later.";
-
-  toast.error(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
+
+  if (!isOpen) return null; 
 
   return (
     <>
@@ -62,12 +62,12 @@ export default function SignInPage() {
       <div className="fixed inset-0 flex items-center justify-center z-50">
         <div
           className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-          onClick={() => router.push("/")}
+          onClick={() => setIsOpen(false)} 
         ></div>
 
         <div className="relative bg-white p-6 rounded-xl shadow-lg w-96 z-10">
           <button
-            onClick={() => router.push("/")}
+            onClick={() => setIsOpen(false)} 
             className="absolute top-3 right-3 text-gray-500 hover:text-black text-lg font-bold"
           >
             ✕

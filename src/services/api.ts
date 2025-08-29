@@ -1,8 +1,27 @@
+// src/services/api.ts
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://tickenza-app.onrender.com",
+  baseURL: process.env.NEXT_PUBLIC_API_URL, // from .env.local
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-export const loginUser = (data: { email: string; password: string }) =>
-  API.post<{ token: string }>("/auth/login", data);
+API.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    console.error("API Error:", err.response?.data || err.message);
+    return Promise.reject(err);
+  }
+);
+
+export const loginUser = (data: { email: string; password: string }) => {
+  return API.post("/login", data);
+};
+
+export const signupUser = (data: { name: string; email: string; password: string }) => {
+  return API.post("/signup", data);
+};
+
+export default API;
