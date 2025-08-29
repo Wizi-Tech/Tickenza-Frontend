@@ -15,11 +15,11 @@ API.interceptors.response.use(
   }
 );
 
-export const loginUser = (data: { email: string; password: string }) => {
+export const loginUser = (data: { username: string; password: string }) => {
   return API.post("/login", data);
 };
 
-export const signupUser = (data: { name: string; email: string; password: string }) => {
+export const signupUser = (data: { name: string; username: string; password: string }) => {
   return API.post("/signup", data);
 };
 
