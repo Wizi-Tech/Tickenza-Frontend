@@ -5,7 +5,7 @@ import toast, { Toaster } from "react-hot-toast";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
-import { AuthService } from "@/services/authService";  
+import { AuthService } from "@/services/authService";
 
 type AuthResponse = {
   name: string;
@@ -19,19 +19,59 @@ export default function SignUpPage() {
     username: "",
     password: "",
   });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
   const setUser = useAuthStore((state) => state.setUser);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" }); 
+    }
+  };
+
+  const validateSignup = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+    } else if (!/^[A-Z][a-zA-Z]*$/.test(formData.name)) {
+      newErrors.name =
+        "Invalid name (First letter capital & only alphabets allowed)";
+    }
+
+    if (!formData.username.trim()) {
+      newErrors.username = "Username is required";
+    } else if (!/^[A-Za-z0-9!@#$%^&*]{8,}$/.test(formData.username)) {
+      newErrors.username =
+        "Invalid username (Minimum 8 characters. Alphabets, numbers, special chars allowed)";
+    }
+
+    if (!formData.password.trim()) {
+      newErrors.password = "Password is required";
+    } else if (
+      !/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/.test(
+        formData.password
+      )
+    ) {
+      newErrors.password =
+        "Invalid password (At least 6 chars, 1 uppercase, 1 number, 1 special character)";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
+    if (!validateSignup()) return;
+
+    setLoading(true);
     try {
       const res = await AuthService.signup({
         name: formData.name,
@@ -41,8 +81,7 @@ export default function SignUpPage() {
 
       if (res.status === 200) {
         const data = res.data as AuthResponse;
-
-        toast.success("Signup Sucessful!");
+        toast.success("Signup Successful!");
         router.push("/signin");
       }
     } catch (err: any) {
@@ -94,11 +133,16 @@ export default function SignUpPage() {
                 placeholder="Enter your name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
+                className={`w-full border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 ${
+                  errors.name
+                    ? "border-red-500 focus:ring-red-500"
+                    : "focus:ring-green-500"
+                }`}
               />
+              {errors.name && (
+                <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+              )}
             </div>
-
             <div>
               <label className="text-black block mb-1">Username</label>
               <input
@@ -107,11 +151,16 @@ export default function SignUpPage() {
                 placeholder="Enter username"
                 value={formData.username}
                 onChange={handleChange}
-                className="w-full border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
+                className={`w-full border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 ${
+                  errors.username
+                    ? "border-red-500 focus:ring-red-500"
+                    : "focus:ring-green-500"
+                }`}
               />
+              {errors.username && (
+                <p className="text-red-500 text-sm mt-1">{errors.username}</p>
+              )}
             </div>
-
             <div>
               <label className="text-black block mb-1">Password</label>
               <input
@@ -120,9 +169,15 @@ export default function SignUpPage() {
                 placeholder="Enter password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
+                className={`w-full border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 ${
+                  errors.password
+                    ? "border-red-500 focus:ring-red-500"
+                    : "focus:ring-green-500"
+                }`}
               />
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              )}
             </div>
 
             <button
