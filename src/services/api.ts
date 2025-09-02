@@ -15,12 +15,4 @@ API.interceptors.response.use(
   }
 );
 
-export const loginUser = (data: { username: string; password: string }) => {
-  return API.post("/login", data);
-};
-
-export const signupUser = (data: { name: string; username: string; password: string }) => {
-  return API.post("/signup", data);
-};
-
 export default API;

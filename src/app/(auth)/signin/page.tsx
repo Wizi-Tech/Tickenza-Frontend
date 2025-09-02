@@ -1,9 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import toast, { Toaster } from "react-hot-toast";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@/store/auth";
 import { AuthService } from "@/services/authService";
 
@@ -12,70 +15,38 @@ type AuthResponse = {
   username: string;
   token: string;
 };
+const signinSchema = z.object({
+  username: z
+    .string()
+    .min(8, "Username must be at least 8 characters")
+    .regex(/^[A-Za-z0-9!@#$%^&*]+$/, "Invalid characters in username"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+type SigninForm = z.infer<typeof signinSchema>;
 
 export default function SigninPage() {
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [loading, setLoading] = useState(false);
-
   const router = useRouter();
   const setUser = useAuthStore((state) => state.setUser);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SigninForm>({
+    resolver: zodResolver(signinSchema),
+  });
 
-    if (errors[name]) {
-      setErrors({ ...errors, [name]: "" });
-    }
-  };
-
-  const validateSignin = () => {
-    const newErrors: { [key: string]: string } = {};
-
- if (!formData.username.trim()) {
-      newErrors.username = "Username is required";
-    } else if (!/^[A-Za-z0-9!@#$%^&*]{8,}$/.test(formData.username)) {
-      newErrors.username =
-        "Invalid username (Minimum 8 characters. Alphabets, numbers, special chars allowed)";
-    }
-
-    if (!formData.password.trim()) {
-      newErrors.password = "Password is required";
-    } else if (
-      !/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/.test(
-        formData.password
-      )
-    ) {
-      newErrors.password =
-        "Invalid password (At least 6 chars, 1 uppercase, 1 number, 1 special character)";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateSignin()) return;
-
-    setLoading(true);
+  const onSubmit = async (data: SigninForm) => {
     try {
-      const res = await AuthService.signin({
-        username: formData.username,
-        password: formData.password,
-      });
+      const res = await AuthService.signin(data);
 
       if (res.status === 200) {
-        const data = res.data as AuthResponse;
+        const user = res.data as AuthResponse;
         setUser({
-          name: data.name,
-          username: data.username,
-          token: data.token,
+          name: user.name,
+          username: user.username,
+          token: user.token,
         });
 
         toast.success("Login Successful");
@@ -86,8 +57,6 @@ export default function SigninPage() {
       const errorMessage =
         err.response?.data?.message || "Login failed! Try again.";
       toast.error(errorMessage);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -123,15 +92,13 @@ export default function SigninPage() {
             Please login to continue
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <label className="text-black block mb-1">Username</label>
               <input
                 type="text"
-                name="username"
                 placeholder="Enter Username"
-                value={formData.username}
-                onChange={handleChange}
+                {...register("username")}
                 className={`w-full border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 ${
                   errors.username
                     ? "border-red-500 focus:ring-red-500"
@@ -139,17 +106,17 @@ export default function SigninPage() {
                 }`}
               />
               {errors.username && (
-                <p className="text-red-500 text-sm mt-1">{errors.username}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.username.message}
+                </p>
               )}
             </div>
             <div>
               <label className="text-black block mb-1">Password</label>
               <input
                 type="password"
-                name="password"
                 placeholder="Enter Password"
-                value={formData.password}
-                onChange={handleChange}
+                {...register("password")}
                 className={`w-full border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 ${
                   errors.password
                     ? "border-red-500 focus:ring-red-500"
@@ -157,16 +124,18 @@ export default function SigninPage() {
                 }`}
               />
               {errors.password && (
-                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={isSubmitting}
               className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
-              {loading ? "Loading..." : "Login"}
+              {isSubmitting ? "Loading..." : "Login"}
             </button>
           </form>
 
