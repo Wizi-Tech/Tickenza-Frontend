@@ -31,7 +31,7 @@ const MainNav2: FC<MainNav2Props> = ({ className = "" }) => {
         </div>
 
         <div className="hidden md:flex flex-shrink-0 justify-end flex-1 lg:flex-none text-neutral-700 dark:text-neutral-100">
-          <div className="hidden lg:flex space-x-1">
+          <div className="hidden lg:flex space-x-1 py-5">
             <TemplatesDropdown />
             <LangDropdown />
             <Link

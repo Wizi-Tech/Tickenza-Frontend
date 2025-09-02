@@ -1,7 +1,7 @@
 "use client";
 
 import React, { FC, Fragment, useState } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, DialogPanel, Transition } from "@headlessui/react";
 import { ArrowRightIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
 import CommentListing from "@/components/CommentListing";
 import FiveStartIconForRate from "@/components/FiveStartIconForRate";
@@ -191,7 +191,7 @@ const ListingStayDetailPage: FC<ListingStayDetailPageProps> = ({}) => {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-40" />
+              <DialogPanel />
             </Transition.Child>
 
             {/* This element is to trick the browser into centering the modal contents. */}

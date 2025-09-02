@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Fragment, useState } from "react";
-import { Dialog, Popover, Transition } from "@headlessui/react";
+import { Dialog, DialogPanel, Popover, Transition } from "@headlessui/react";
 import ButtonPrimary from "@/shared/ButtonPrimary";
 import ButtonThird from "@/shared/ButtonThird";
 import ButtonClose from "@/shared/ButtonClose";
@@ -376,7 +376,7 @@ const TabFilters = () => {
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-40 dark:bg-opacity-60" />
+                <DialogPanel className="fixed inset-0 bg-black bg-opacity-40 dark:bg-opacity-60" />
               </Transition.Child>
 
               {/* This element is to trick the browser into centering the modal contents. */}
@@ -387,7 +387,7 @@ const TabFilters = () => {
                 &#8203;
               </span>
               <Transition.Child
-                className="inline-block py-8 px-2 h-screen w-full max-w-4xl"
+                // className="inline-block py-8 px-2 h-screen w-full max-w-4xl"
                 enter="ease-out duration-300"
                 enterFrom="opacity-0 scale-95"
                 enterTo="opacity-100 scale-100"

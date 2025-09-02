@@ -13,7 +13,7 @@ import travelhero2Image from "@/images/travelhero2.png";
 import Link from "next/link";
 import { Route } from "@/routers/types";
 
-const Page = ({
+const Page = async ({
   params,
   searchParams,
 }: {

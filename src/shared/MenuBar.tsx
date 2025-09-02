@@ -1,5 +1,5 @@
 import React, { useState, Fragment, useEffect } from "react";
-import { Transition, Dialog } from "@headlessui/react";
+import { Transition, Dialog } from "@headlessui/react";  // 
 import NavMobile from "./Navigation/NavMobile";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { usePathname } from "next/navigation";
@@ -8,12 +8,12 @@ export interface MenuBarProps {
   className?: string;
   iconClassName?: string;
 }
+
 const MenuBar: React.FC<MenuBarProps> = ({
   className = "p-2.5 rounded-lg text-neutral-700 dark:text-neutral-300",
   iconClassName = "h-8 w-8",
 }) => {
   const [isVisable, setIsVisable] = useState(false);
-
   const pathname = usePathname();
 
   useEffect(() => {
@@ -31,6 +31,7 @@ const MenuBar: React.FC<MenuBarProps> = ({
           className="relative z-50 overflow-hidden"
           onClose={handleCloseMenu}
         >
+          {/* Background Overlay */}
           <Transition.Child
             as={Fragment}
             enter=" duration-300"
@@ -40,8 +41,11 @@ const MenuBar: React.FC<MenuBarProps> = ({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Dialog.Overlay className="fixed inset-0 bg-black/60 dark:bg-black/70" />
+            {/* ✅ Changed to Dialog.Panel */}
+            <Dialog.Panel className="fixed inset-0 bg-black/60 dark:bg-black/70" />
           </Transition.Child>
+
+          {/* Side Menu */}
           <div className="fixed inset-0">
             <div className="flex justify-end min-h-full ">
               <Transition.Child

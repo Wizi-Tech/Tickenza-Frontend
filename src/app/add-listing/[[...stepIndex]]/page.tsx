@@ -10,7 +10,7 @@ import PageAddListing7 from "./PageAddListing7";
 import PageAddListing8 from "./PageAddListing8";
 import PageAddListing9 from "./PageAddListing9";
 
-const Page = ({
+const Page = async ({
   params,
   searchParams,
 }: {
@@ -18,6 +18,7 @@ const Page = ({
   searchParams?: { [key: string]: string | string[] | undefined };
 }) => {
   let ContentComponent = PageAddListing1;
+
   switch (Number(params.stepIndex)) {
     case 1:
       ContentComponent = PageAddListing1;
