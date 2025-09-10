@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { loginUser } from "@/services/api";
+// import { loginUser } from "@/services/api";
 
 interface Props {
   isOpen: boolean;
@@ -9,20 +9,24 @@ interface Props {
   onLoginSuccess: () => void;
 }
 
-export default function SignInModal({ isOpen, onClose, onLoginSuccess }: Props) {
+export default function SignInModal({
+  isOpen,
+  onClose,
+  onLoginSuccess,
+}: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  if (!isOpen) return null; 
+  if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await loginUser({ email, password });
-      localStorage.setItem("token", res.data.token);
+      // const res = await loginUser({ email, password });
+      // localStorage.setItem("token", res.data.token);
       onLoginSuccess();
-      onClose(); 
+      onClose();
       alert("Sign in successful ");
     } catch (err) {
       setError("Invalid email or password");
@@ -32,11 +36,11 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }: Props) 
   return (
     <div
       className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm z-50"
-      onClick={onClose} 
+      onClick={onClose}
     >
       <div
         className="relative bg-white p-6 rounded-2xl shadow-lg w-96"
-        onClick={(e) => e.stopPropagation()} 
+        onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
@@ -70,7 +74,7 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }: Props) 
             <button
               type="button"
               className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
-              onClick={onClose} 
+              onClick={onClose}
             >
               Cancel
             </button>
