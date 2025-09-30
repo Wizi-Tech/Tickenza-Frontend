@@ -1,5 +1,5 @@
-import api from "./api"; 
+import API from "./api";
 
 export const TicketService = {
-  create: (payload: any) => api.post("/tickets", payload),
+  create: (payload: any) => API.post("/tickets", payload),
 };

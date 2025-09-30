@@ -1,25 +1,27 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-type User = {
+interface User {
   name: string;
   username: string;
   token: string;
-};
+}
 
-type AuthState = {
+interface AuthState {
   user: User | null;
   setUser: (user: User) => void;
-  clearUser: () => void;
-};
+  clearUser: () => void; // logout
+}
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      setUser: (user) => set({ user }),
-      clearUser: () => set({ user: null }),
+      setUser: (user) => set({ user }),              
+      clearUser: () => set({ user: null }),         
     }),
-    { name: "auth-storage" } // ✅ localStorage persist
+    {
+      name: "auth-storage", 
+    }
   )
 );
