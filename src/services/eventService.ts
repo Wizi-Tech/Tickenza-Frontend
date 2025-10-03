@@ -1,20 +1,8 @@
+import { Event } from "@/types/event"
 import API from "./api"
 
 export const EventService = {
-  getAll: () => API.get("/events"),
-
-  create: (data: any) =>
-    API.post("/events", data, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }),
-
-  // 🆕 Add this method for file upload
-  uploadImage: (formData: FormData) =>
-    API.post("/uploads", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }),
+  getAll: () => API.get<Event[]>("/events"),  // ✅ typed
+  create: (data: any) => API.post<Event>("/events", data),
+  uploadImage: (formData: FormData) => API.post<{ url: string }>("/uploads", formData),
 }

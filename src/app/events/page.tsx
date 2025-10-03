@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react"
 import { EventService } from "@/services/eventService"
 import toast from "react-hot-toast"
-import { Event } from "@/types/event"
+import { Event, EventPayload, UploadResponse } from "@/types/event"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -29,7 +29,7 @@ export default function EventsPage() {
 
   useEffect(() => {
     EventService.getAll()
-      .then((res) => setEvents(res.data as Event[]))
+      .then((res) => setEvents(res.data))
       .catch(() => toast.error("Failed to fetch events"))
   }, [])
 
@@ -53,7 +53,7 @@ export default function EventsPage() {
 
     try {
       const res = await EventService.uploadImage(formData)
-      const data = res.data as { url: string } // TypeScript fix
+      const data = res.data as UploadResponse
       setImageUrl(data.url)
       toast.success("Image uploaded successfully!")
     } catch (err) {
@@ -72,19 +72,21 @@ export default function EventsPage() {
       return
     }
 
-    const payload = {
+    const payload: EventPayload = {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       event_date: formatDate(formData.get("date") as string),
       event_time: formData.get("time") as string,
       venue: formData.get("venue") as string,
-      image_url: imageUrl, // ✅ use uploaded URL
+      category: category || "General",
+      location: location || "Unknown",
+      image_url: imageUrl,
     }
 
     try {
       const res = await EventService.create(payload)
       toast.success("Event created successfully!")
-      setEvents((prev) => [...prev, res.data as Event])
+      setEvents((prev) => [...prev, res.data])
       // Reset form
       setImageFile(null)
       setImageUrl("")
@@ -196,3 +198,4 @@ export default function EventsPage() {
     </div>
   )
 }
+
