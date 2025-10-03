@@ -52,12 +52,12 @@ export default function EventsPage() {
     formData.append("file", imageFile)
 
     try {
-      // Example: EventService.uploadImage will hit /uploads endpoint
       const res = await EventService.uploadImage(formData)
-      const data = res.data as { url: string }
-      setImageUrl(data.url) // backend returns { url: "https://..." }
+      const data = res.data as { url: string } // TypeScript fix
+      setImageUrl(data.url)
       toast.success("Image uploaded successfully!")
     } catch (err) {
+      console.error(err)
       toast.error("Failed to upload image")
     }
   }
@@ -67,22 +67,30 @@ export default function EventsPage() {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
 
+    if (!imageUrl) {
+      toast.error("Please upload an image first")
+      return
+    }
+
     const payload = {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       event_date: formatDate(formData.get("date") as string),
       event_time: formData.get("time") as string,
       venue: formData.get("venue") as string,
-      image_url: imageUrl, // 🆕 use uploaded URL instead of text field
+      image_url: imageUrl, // ✅ use uploaded URL
     }
 
     try {
       const res = await EventService.create(payload)
       toast.success("Event created successfully!")
       setEvents((prev) => [...prev, res.data as Event])
+      // Reset form
       setImageFile(null)
       setImageUrl("")
+      e.currentTarget.reset()
     } catch (err) {
+      console.error(err)
       toast.error("Failed to create event")
     }
   }
