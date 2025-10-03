@@ -1,6 +1,3 @@
-// src/types/event.ts
-
-// ✅ Event object returned from backend
 export interface Event {
   id: number
   name: string
@@ -15,7 +12,6 @@ export interface Event {
   updated_at?: string
 }
 
-// ✅ Payload used to create a new event
 export interface EventPayload {
   name: string
   description: string
@@ -27,7 +23,6 @@ export interface EventPayload {
   image_url: string
 }
 
-// ✅ Response when uploading an image
 export interface UploadResponse {
   url: string
 }

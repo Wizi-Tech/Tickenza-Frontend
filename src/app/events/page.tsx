@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
-// ✅ Convert yyyy-mm-dd -> dd-mm-yyyy
 const formatDate = (date: string) => {
   if (!date) return ""
   const [year, month, day] = date.split("-")
@@ -23,7 +22,6 @@ export default function EventsPage() {
   const [category, setCategory] = useState("")
   const [location, setLocation] = useState("")
 
-  // 🆕 States for Image Upload
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imageUrl, setImageUrl] = useState("")
 
@@ -41,7 +39,6 @@ export default function EventsPage() {
     )
   })
 
-  // 🆕 Handle Image Upload
   const handleImageUpload = async () => {
     if (!imageFile) {
       toast.error("Please select an image first")
@@ -62,7 +59,7 @@ export default function EventsPage() {
     }
   }
 
-  // ✅ Create Event
+  
   const handleCreateEvent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
@@ -87,7 +84,6 @@ export default function EventsPage() {
       const res = await EventService.create(payload)
       toast.success("Event created successfully!")
       setEvents((prev) => [...prev, res.data])
-      // Reset form
       setImageFile(null)
       setImageUrl("")
       e.currentTarget.reset()
@@ -118,7 +114,6 @@ export default function EventsPage() {
               <Input name="venue" placeholder="Venue" className="bg-gray-800 text-white border-gray-600 placeholder-gray-400" />
               <textarea name="description" placeholder="Description" className="bg-gray-800 text-white border-gray-600 p-2 rounded-md placeholder-gray-400" />
 
-              {/* 🆕 Image Upload Section */}
               <div className="flex gap-2 items-center">
                 <Input
                   type="file"
@@ -140,8 +135,6 @@ export default function EventsPage() {
           </DialogContent>
         </Dialog>
       </div>
-
-      {/* Filter Section */}
       <div className="flex gap-4 mb-8">
         <Input
           placeholder="Search events..."
@@ -173,7 +166,6 @@ export default function EventsPage() {
         </Select>
       </div>
 
-      {/* Events List */}
       <div className="grid grid-cols-3 gap-6">
         {filteredEvents.length > 0 ? (
           filteredEvents.map((event) => (
