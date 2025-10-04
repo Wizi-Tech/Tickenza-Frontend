@@ -1,8 +1,8 @@
-import { Event } from "@/types/event"
 import API from "./api"
+import { Event, EventPayload, UploadResponse } from "@/types/event"
 
 export const EventService = {
-  getAll: () => API.get<Event[]>("/events"),  // ✅ typed
-  create: (data: any) => API.post<Event>("/events", data),
-  uploadImage: (formData: FormData) => API.post<{ url: string }>("/uploads", formData),
+  getAll: () => API.get<Event[]>("/events"),
+  create: (data: EventPayload) => API.post<Event>("/events", data),
+  uploadImage: (formData: FormData) => API.post<UploadResponse>("/uploads", formData),
 }

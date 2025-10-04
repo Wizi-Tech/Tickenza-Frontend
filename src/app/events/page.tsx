@@ -10,11 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
-const formatDate = (date: string) => {
-  if (!date) return ""
-  const [year, month, day] = date.split("-")
-  return `${day}-${month}-${year}`
-}
+// ✅ Keep date format as YYYY-MM-DD (backend friendly)
+const formatDate = (date: string) => date
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([])
@@ -22,15 +19,18 @@ export default function EventsPage() {
   const [category, setCategory] = useState("")
   const [location, setLocation] = useState("")
 
+  // 🆕 Image states
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imageUrl, setImageUrl] = useState("")
 
+  // ✅ Load all events on mount
   useEffect(() => {
     EventService.getAll()
       .then((res) => setEvents(res.data))
       .catch(() => toast.error("Failed to fetch events"))
   }, [])
 
+  // ✅ Filter events based on search, category, location
   const filteredEvents = events.filter((event) => {
     return (
       event.name.toLowerCase().includes(search.toLowerCase()) &&
@@ -39,6 +39,7 @@ export default function EventsPage() {
     )
   })
 
+  // 🆕 Handle Image Upload
   const handleImageUpload = async () => {
     if (!imageFile) {
       toast.error("Please select an image first")
@@ -50,7 +51,7 @@ export default function EventsPage() {
 
     try {
       const res = await EventService.uploadImage(formData)
-      const data = res.data as UploadResponse
+      const data: UploadResponse = res.data
       setImageUrl(data.url)
       toast.success("Image uploaded successfully!")
     } catch (err) {
@@ -59,7 +60,7 @@ export default function EventsPage() {
     }
   }
 
-  
+  // ✅ Handle Event Creation
   const handleCreateEvent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
@@ -82,8 +83,11 @@ export default function EventsPage() {
 
     try {
       const res = await EventService.create(payload)
+      const newEvent: Event = res.data
+      setEvents((prev) => [...prev, newEvent])
       toast.success("Event created successfully!")
-      setEvents((prev) => [...prev, res.data])
+
+      // Reset form
       setImageFile(null)
       setImageUrl("")
       e.currentTarget.reset()
@@ -114,6 +118,7 @@ export default function EventsPage() {
               <Input name="venue" placeholder="Venue" className="bg-gray-800 text-white border-gray-600 placeholder-gray-400" />
               <textarea name="description" placeholder="Description" className="bg-gray-800 text-white border-gray-600 p-2 rounded-md placeholder-gray-400" />
 
+              {/* ✅ Image Upload */}
               <div className="flex gap-2 items-center">
                 <Input
                   type="file"
@@ -135,6 +140,8 @@ export default function EventsPage() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Filters */}
       <div className="flex gap-4 mb-8">
         <Input
           placeholder="Search events..."
@@ -166,6 +173,7 @@ export default function EventsPage() {
         </Select>
       </div>
 
+      {/* ✅ Event Cards */}
       <div className="grid grid-cols-3 gap-6">
         {filteredEvents.length > 0 ? (
           filteredEvents.map((event) => (
@@ -190,4 +198,3 @@ export default function EventsPage() {
     </div>
   )
 }
-
