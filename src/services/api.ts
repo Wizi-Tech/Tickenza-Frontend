@@ -2,11 +2,9 @@ import axios from "axios";
 
 const API = axios.create({
   baseURL: "https://tickenza-backend-production.up.railway.app",
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
+// 🧩 Interceptor to attach token + handle headers correctly
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
@@ -14,6 +12,12 @@ API.interceptors.request.use((config) => {
     config.headers = {};
   }
 
+  // ✅ Set Content-Type only for non-FormData requests
+  if (!(config.data instanceof FormData)) {
+    config.headers["Content-Type"] = "application/json";
+  }
+
+  // ✅ Add token if available
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -21,6 +25,7 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+// 🧩 Handle API errors gracefully
 API.interceptors.response.use(
   (res) => res,
   (err) => {
