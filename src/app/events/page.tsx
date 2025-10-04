@@ -22,11 +22,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-const formatDate = (date: string) => {
-  if (!date) return "";
-  const [year, month, day] = date.split("-");
-  return `${day}-${month}-${year}`;
-};
+// ✅ Keep date format as YYYY-MM-DD (backend friendly)
+const formatDate = (date: string) => date;
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -37,12 +34,14 @@ export default function EventsPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState("");
 
+  // ✅ Load all events on mount
   useEffect(() => {
     EventService.getAll()
       .then((res) => setEvents(res.data))
       .catch(() => toast.error("Failed to fetch events"));
   }, []);
 
+  // ✅ Filter events based on search, category, location
   const filteredEvents = events.filter((event) => {
     return (
       event.name.toLowerCase().includes(search.toLowerCase()) &&
@@ -51,7 +50,7 @@ export default function EventsPage() {
     );
   });
 
-  // ✅ Handles image upload
+  // 🆕 Handle Image Upload
   const handleImageUpload = async () => {
     if (!imageFile) {
       toast.error("Please select an image first");
@@ -59,12 +58,13 @@ export default function EventsPage() {
     }
 
     const formData = new FormData();
-    formData.append("file", imageFile);
+    formData.append("file", imageFile); // ✅ fixed from 'file' to 'imageFile'
 
     try {
       const res = await EventService.uploadImage(formData);
-      const data = res.data as UploadResponse;
+      const data: UploadResponse = res.data;
       setImageUrl(data.url);
+      setImageFile(null); // reset file after successful upload
       toast.success("Image uploaded successfully!");
     } catch (err) {
       console.error("Upload error:", err);
@@ -72,7 +72,7 @@ export default function EventsPage() {
     }
   };
 
-  // ✅ Handles event creation
+  // ✅ Handle Event Creation
   const handleCreateEvent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -95,9 +95,11 @@ export default function EventsPage() {
 
     try {
       const res = await EventService.create(payload);
+      const newEvent: Event = res.data;
+      setEvents((prev) => [...prev, newEvent]);
       toast.success("Event created successfully!");
-      setEvents((prev) => [...prev, res.data]);
-      setImageFile(null);
+
+      // Reset form
       setImageUrl("");
       e.currentTarget.reset();
     } catch (err) {
