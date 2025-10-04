@@ -11,7 +11,6 @@ export interface Event {
   created_at?: string
   updated_at?: string
 }
-
 export interface EventPayload {
   name: string
   description: string
