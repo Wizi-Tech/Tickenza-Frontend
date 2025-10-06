@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader,DialogTitle, DialogTrigger,} from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 const formatDate = (date: string) => date;
 
 export default function EventsPage() {
@@ -17,6 +18,7 @@ export default function EventsPage() {
   const [location, setLocation] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState("");
+  const router = useRouter();
   useEffect(() => {
     EventService.getAll()
       .then((res) => setEvents(res.data))
@@ -69,6 +71,7 @@ export default function EventsPage() {
       const newEvent: Event = res.data;
       setEvents((prev) => [...prev, newEvent]);
       toast.success("Event created successfully!");
+      router.push(`/tickettype?event_id=${newEvent.id}`);
       setImageUrl("");
       e.currentTarget.reset();
     } catch (err) {
