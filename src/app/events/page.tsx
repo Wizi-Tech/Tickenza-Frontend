@@ -33,19 +33,14 @@ export default function EventsPage() {
       (location ? event.location === location : true)
     );
   });
-
-  // ✅ Corrected upload handler
   const handleImageUpload = async () => {
     if (!imageFile) {
       toast.error("Please select an image first");
       return;
     }
-
     const formData = new FormData();
-    formData.append("file", imageFile); // must match backend param name "file"
-
+    formData.append("file", imageFile); 
     try {
-      // Call correct endpoint from EventService
       const res = await EventService.uploadImage(formData);
       const data: UploadResponse = res.data;
       setImageUrl(data.url);
