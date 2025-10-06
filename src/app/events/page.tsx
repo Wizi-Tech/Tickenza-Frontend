@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import { EventService } from "@/services/eventService";
 import toast from "react-hot-toast";
@@ -9,9 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-
 const formatDate = (date: string) => date;
-
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [search, setSearch] = useState("");

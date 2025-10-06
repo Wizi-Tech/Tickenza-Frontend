@@ -21,7 +21,6 @@ export interface EventPayload {
   location: string
   image_url: string
 }
-
 export interface UploadResponse {
   url: string
 }
