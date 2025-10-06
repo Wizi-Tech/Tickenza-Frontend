@@ -19,7 +19,7 @@ export default function EventsPage() {
   const [imageUrl, setImageUrl] = useState("");
   useEffect(() => {
     EventService.getAll()
-      .then((res) => setEvents(res.data))
+      .then((res) => setEvents(res.data as Event[]))
       .catch(() => toast.error("Failed to fetch events"));
   }, []);
   const filteredEvents = events.filter((event) => {

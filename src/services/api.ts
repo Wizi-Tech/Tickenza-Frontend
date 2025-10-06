@@ -1,4 +1,5 @@
 import axios from "axios";
+
 const API = axios.create({
   baseURL: "https://tickenza-backend-production.up.railway.app",
 });
@@ -8,14 +9,19 @@ API.interceptors.request.use((config) => {
   if (!config.headers) {
     config.headers = {};
   }
-  if (!(config.data instanceof FormData)) {
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  } else {
     config.headers["Content-Type"] = "application/json";
   }
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
+
+// Response interceptor
 API.interceptors.response.use(
   (res) => res,
   (err) => {
@@ -23,4 +29,5 @@ API.interceptors.response.use(
     return Promise.reject(err);
   }
 );
+
 export default API;
