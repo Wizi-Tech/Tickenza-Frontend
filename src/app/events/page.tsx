@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { EventService } from "@/services/eventService";
 import toast from "react-hot-toast";
@@ -6,8 +7,9 @@ import { Event, EventPayload, UploadResponse } from "@/types/event";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader,DialogTitle, DialogTrigger,} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+
 const formatDate = (date: string) => date;
 
 export default function EventsPage() {
@@ -17,11 +19,13 @@ export default function EventsPage() {
   const [location, setLocation] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState("");
+
   useEffect(() => {
     EventService.getAll()
       .then((res) => setEvents(res.data as Event[]))
       .catch(() => toast.error("Failed to fetch events"));
   }, []);
+
   const filteredEvents = events.filter((event) => {
     return (
       event.name.toLowerCase().includes(search.toLowerCase()) &&
@@ -29,31 +33,39 @@ export default function EventsPage() {
       (location ? event.location === location : true)
     );
   });
+
+  // ✅ Corrected upload handler
   const handleImageUpload = async () => {
     if (!imageFile) {
       toast.error("Please select an image first");
       return;
     }
+
     const formData = new FormData();
-    formData.append("file", imageFile); 
+    formData.append("file", imageFile); // must match backend param name "file"
+
     try {
+      // Call correct endpoint from EventService
       const res = await EventService.uploadImage(formData);
       const data: UploadResponse = res.data;
       setImageUrl(data.url);
-      setImageFile(null); 
+      setImageFile(null);
       toast.success("Image uploaded successfully!");
     } catch (err) {
       console.error("Upload error:", err);
       toast.error("Failed to upload image");
     }
   };
+
   const handleCreateEvent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+
     if (!imageUrl) {
       toast.error("Please upload an image first");
       return;
     }
+
     const payload: EventPayload = {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
@@ -64,6 +76,7 @@ export default function EventsPage() {
       location: location || "Unknown",
       image_url: imageUrl,
     };
+
     try {
       const res = await EventService.create(payload);
       const newEvent: Event = res.data;
@@ -76,6 +89,7 @@ export default function EventsPage() {
       toast.error("Failed to create event");
     }
   };
+
   return (
     <div className="px-8 py-10">
       <div className="flex items-center justify-between mb-6">
@@ -89,25 +103,31 @@ export default function EventsPage() {
               <DialogTitle className="text-white">Create New Event</DialogTitle>
             </DialogHeader>
             <form className="grid gap-4 mt-4" onSubmit={handleCreateEvent}>
-              <Input name="name" placeholder="Event Title" className="bg-gray-800 text-white border-gray-600 placeholder-gray-400" required/>
-              <Input name="date" type="date" className="bg-gray-800 text-white border-gray-600" required/>
-              <Input name="time" type="time" className="bg-gray-800 text-white border-gray-600" required/>
-              <Input name="venue" placeholder="Venue" className="bg-gray-800 text-white border-gray-600 placeholder-gray-400" required/>
-              <textarea name="description" placeholder="Description" className="bg-gray-800 text-white border-gray-600 p-2 rounded-md placeholder-gray-400" required/>
+              <Input name="name" placeholder="Event Title" className="bg-gray-800 text-white border-gray-600 placeholder-gray-400" required />
+              <Input name="date" type="date" className="bg-gray-800 text-white border-gray-600" required />
+              <Input name="time" type="time" className="bg-gray-800 text-white border-gray-600" required />
+              <Input name="venue" placeholder="Venue" className="bg-gray-800 text-white border-gray-600 placeholder-gray-400" required />
+              <textarea name="description" placeholder="Description" className="bg-gray-800 text-white border-gray-600 p-2 rounded-md placeholder-gray-400" required />
               <div className="flex gap-2 items-center">
-              <Input type="file" accept="image/*"onChange={(e) => setImageFile(e.target.files?.[0] || null)} className="bg-gray-800 text-white border-gray-600 flex-1"/>
-              <Button type="button" onClick={handleImageUpload} className="bg-blue-600 text-white"> Upload </Button>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                  className="bg-gray-800 text-white border-gray-600 flex-1"
+                />
+                <Button type="button" onClick={handleImageUpload} className="bg-blue-600 text-white">Upload</Button>
               </div>
-               {imageUrl && (
-                <img src={imageUrl} alt="Uploaded preview" className="w-full h-40 object-cover rounded-md mt-2 border"/>
+              {imageUrl && (
+                <img src={imageUrl} alt="Uploaded preview" className="w-full h-40 object-cover rounded-md mt-2 border" />
               )}
               <Button type="submit" className="bg-blue-600 text-white mt-2">Save Event</Button>
             </form>
           </DialogContent>
         </Dialog>
       </div>
+
       <div className="flex gap-4 mb-8">
-        <Input placeholder="Search events..."  value={search} onChange={(e) => setSearch(e.target.value)} className="w-1/3"/>
+        <Input placeholder="Search events..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-1/3" />
 
         <Select onValueChange={(val) => setCategory(val)}>
           <SelectTrigger className="w-[180px]">
@@ -119,6 +139,7 @@ export default function EventsPage() {
             <SelectItem value="Sports">Sports</SelectItem>
           </SelectContent>
         </Select>
+
         <Select onValueChange={(val) => setLocation(val)}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Location" />
@@ -130,20 +151,19 @@ export default function EventsPage() {
           </SelectContent>
         </Select>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {filteredEvents.length > 0 ? (
           filteredEvents.map((event) => (
             <Card key={event.id} className="overflow-hidden shadow-md rounded-2xl">
-              {event.image_url && (
-                <img src={event.image_url} alt={event.name} className="w-full h-40 object-cover" />
-              )}
+              {event.image_url && <img src={event.image_url} alt={event.name} className="w-full h-40 object-cover" />}
               <CardContent className="p-4">
                 <h2 className="text-xl font-semibold mb-2">{event.name}</h2>
                 <p className="text-gray-600 text-sm">{event.event_date}</p>
                 <p className="text-gray-600 text-sm">{event.event_time}</p>
                 <p className="text-gray-600 text-sm">{event.venue}</p>
                 <p className="text-gray-500 mt-2 text-sm">{event.description}</p>
-                <Button className="mt-4 w-full bg-blue-500 text-white"> View Details </Button>
+                <Button className="mt-4 w-full bg-blue-500 text-white">View Details</Button>
               </CardContent>
             </Card>
           ))
