@@ -8,14 +8,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation"; 
 const formatDate = (date: string) => date;
+
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imageUrl, setImageUrl] = useState("");
+
+  const router = useRouter();
 
   useEffect(() => {
     EventService.getAll()
@@ -30,52 +33,47 @@ export default function EventsPage() {
       (location ? event.location === location : true)
     );
   });
-  const handleImageUpload = async () => {
-    if (!imageFile) {
-      toast.error("Please select an image first");
-      return;
-    }
-    const formData = new FormData();
-    formData.append("file", imageFile); 
-    try {
-      const res = await EventService.uploadImage(formData);
-      const data: UploadResponse = res.data;
-      setImageUrl(data.url);
-      setImageFile(null);
-      toast.success("Image uploaded successfully!");
-    } catch (err) {
-      console.error("Upload error:", err);
-      toast.error("Failed to upload image");
-    }
-  };
 
   const handleCreateEvent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
-    if (!imageUrl) {
-      toast.error("Please upload an image first");
-      return;
-    }
-
-    const payload: EventPayload = {
-      name: formData.get("name") as string,
-      description: formData.get("description") as string,
-      event_date: formatDate(formData.get("date") as string),
-      event_time: formData.get("time") as string,
-      venue: formData.get("venue") as string,
-      category: category || "General",
-      location: location || "Unknown",
-      image_url: imageUrl,
-    };
-
     try {
+
+      let uploadedImageUrl = "";
+      if (imageFile) {
+        const imageFormData = new FormData();
+        imageFormData.append("file", imageFile);
+
+        const uploadRes = await EventService.uploadImage(imageFormData);
+        const uploadData: UploadResponse = uploadRes.data;
+        uploadedImageUrl = uploadData.url;
+      } else {
+        toast.error("Please select an image before saving.");
+        return;
+      }
+
+      const payload: EventPayload = {
+        name: formData.get("name") as string,
+        description: formData.get("description") as string,
+        event_date: formatDate(formData.get("date") as string),
+        event_time: formData.get("time") as string,
+        venue: formData.get("venue") as string,
+        category: category || "General",
+        location: location || "Unknown",
+        image_url: uploadedImageUrl,
+      };
+
       const res = await EventService.create(payload);
       const newEvent: Event = res.data;
       setEvents((prev) => [...prev, newEvent]);
+
       toast.success("Event created successfully!");
-      setImageUrl("");
+
+      router.push(`/events/${newEvent.id}/ticket-types`);
+
       e.currentTarget.reset();
+      setImageFile(null);
     } catch (err) {
       console.error("Create event error:", err);
       toast.error("Failed to create event");
@@ -99,7 +97,12 @@ export default function EventsPage() {
               <Input name="date" type="date" className="bg-gray-800 text-white border-gray-600" required />
               <Input name="time" type="time" className="bg-gray-800 text-white border-gray-600" required />
               <Input name="venue" placeholder="Venue" className="bg-gray-800 text-white border-gray-600 placeholder-gray-400" required />
-              <textarea name="description" placeholder="Description" className="bg-gray-800 text-white border-gray-600 p-2 rounded-md placeholder-gray-400" required />
+              <textarea
+                name="description"
+                placeholder="Description"
+                className="bg-gray-800 text-white border-gray-600 p-2 rounded-md placeholder-gray-400"
+                required
+              />
               <div className="flex gap-2 items-center">
                 <Input
                   type="file"
@@ -107,12 +110,10 @@ export default function EventsPage() {
                   onChange={(e) => setImageFile(e.target.files?.[0] || null)}
                   className="bg-gray-800 text-white border-gray-600 flex-1"
                 />
-                <Button type="button" onClick={handleImageUpload} className="bg-blue-600 text-white">Upload</Button>
               </div>
-              {imageUrl && (
-                <img src={imageUrl} alt="Uploaded preview" className="w-full h-40 object-cover rounded-md mt-2 border" />
-              )}
-              <Button type="submit" className="bg-blue-600 text-white mt-2">Save Event</Button>
+              <Button type="submit" className="bg-blue-600 text-white mt-2">
+                Save Event
+              </Button>
             </form>
           </DialogContent>
         </Dialog>
