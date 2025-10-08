@@ -1,4 +1,5 @@
 import { Event } from "@/types/event";
+
 import API from "./api";
 export const EventService = {
   getAll: () => API.get<Event[]>("/events"),

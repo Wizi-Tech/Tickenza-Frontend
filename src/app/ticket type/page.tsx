@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
 import { TicketService } from "@/services/ticketService";
-
 export default function TicketTypePage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -16,7 +15,6 @@ export default function TicketTypePage() {
     { type_name: "VIP", price: "", total_quantity: "" },
     { type_name: "Student", price: "", total_quantity: "" },
   ]);
-
   const handleChange = (index: number, field: string, value: string) => {
     const updated = [...tickets];
     updated[index][field as keyof typeof updated[0]] = value;

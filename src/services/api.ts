@@ -1,5 +1,4 @@
 import axios from "axios";
-
 const API = axios.create({
   baseURL: "https://tickenza-backend-copy-production.up.railway.app",
 });

@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation"; 
 const formatDate = (date: string) => date;
-
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [search, setSearch] = useState("");
@@ -18,7 +17,6 @@ export default function EventsPage() {
   const [location, setLocation] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false)
-
   const router = useRouter();
 
   useEffect(() => {
