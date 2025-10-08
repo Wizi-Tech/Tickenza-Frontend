@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://tickenza-backend-production.up.railway.app",
+  baseURL: "https://tickenza-backend-copy-production.up.railway.app",
 });
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
@@ -19,8 +19,6 @@ API.interceptors.request.use((config) => {
 
   return config;
 });
-
-// Response interceptor
 API.interceptors.response.use(
   (res) => res,
   (err) => {
