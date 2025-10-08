@@ -32,18 +32,14 @@ export default function EventsPage() {
       (location ? event.location === location : true)
     );
   });
-
   const handleCreateEvent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-
     try {
-
       let uploadedImageUrl = "";
       if (imageFile) {
         const imageFormData = new FormData();
         imageFormData.append("file", imageFile);
-
         const uploadRes = await EventService.uploadImage(imageFormData);
         const uploadData: UploadResponse = uploadRes.data;
         uploadedImageUrl = uploadData.url;
@@ -66,11 +62,8 @@ export default function EventsPage() {
       const res = await EventService.create(payload);
       const newEvent: Event = res.data;
       setEvents((prev) => [...prev, newEvent]);
-
       toast.success("Event created successfully!");
-
       router.push(`/events/${newEvent.id}/ticket-types`);
-
       e.currentTarget.reset();
       setImageFile(null);
     } catch (err) {
@@ -117,10 +110,8 @@ export default function EventsPage() {
           </DialogContent>
         </Dialog>
       </div>
-
       <div className="flex gap-4 mb-8">
         <Input placeholder="Search events..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-1/3" />
-
         <Select onValueChange={(val) => setCategory(val)}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Category" />
@@ -131,7 +122,6 @@ export default function EventsPage() {
             <SelectItem value="Sports">Sports</SelectItem>
           </SelectContent>
         </Select>
-
         <Select onValueChange={(val) => setLocation(val)}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Location" />
@@ -143,7 +133,6 @@ export default function EventsPage() {
           </SelectContent>
         </Select>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {filteredEvents.length > 0 ? (
           filteredEvents.map((event) => (
