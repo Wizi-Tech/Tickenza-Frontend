@@ -16,7 +16,6 @@ API.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-
   return config;
 });
 API.interceptors.response.use(
@@ -26,5 +25,4 @@ API.interceptors.response.use(
     return Promise.reject(err);
   }
 );
-
 export default API;
