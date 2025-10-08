@@ -17,6 +17,7 @@ export default function EventsPage() {
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false)
 
   const router = useRouter();
 
@@ -111,8 +112,8 @@ export default function EventsPage() {
                   className="bg-gray-800 text-white border-gray-600 flex-1"
                 />
               </div>
-              <Button type="submit" className="bg-blue-600 text-white mt-2">
-                Save Event
+              <Button type="submit" className="bg-blue-600 text-white mt-2 disabled={isLoading}">
+               {isLoading ? "Loading..." : "Save Event"}
               </Button>
             </form>
           </DialogContent>
