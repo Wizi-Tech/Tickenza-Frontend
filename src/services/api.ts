@@ -1,22 +1,21 @@
 import axios from "axios";
+
 const API = axios.create({
   baseURL: "https://tickenza-backend.onrender.com",
+  headers: {
+    "Content-Type": "application/json", 
+  },
 });
+
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-  if (!config.headers) {
-    config.headers = {};
-  }
-  if (config.data instanceof FormData) {
-    delete config.headers["Content-Type"];
-  } else {
-    config.headers["Content-Type"] = "application/json";
-  }
   if (token) {
+    if (!config.headers) config.headers = {};
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
+
 API.interceptors.response.use(
   (res) => res,
   (err) => {
@@ -24,4 +23,5 @@ API.interceptors.response.use(
     return Promise.reject(err);
   }
 );
+
 export default API;
