@@ -9,7 +9,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@/store/auth";
 import { AuthService } from "@/services/authService";
-
 type AuthResponse = {
   name: string;
   username: string;

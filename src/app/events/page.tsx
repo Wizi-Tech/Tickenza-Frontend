@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation"; 
 
-// Correctly format date to DD-MM-YYYY
 const formatDate = (date: string) => {
   const [year, month, day] = date.split("-");
   return `${day}-${month}-${year}`;
@@ -48,17 +47,14 @@ export default function EventsPage() {
       return;
     }
 
-    setIsLoading(true); // Start loading
-
+    setIsLoading(true); 
     try {
-      // Upload image
       const imageFormData = new FormData();
       imageFormData.append("file", imageFile);
       const uploadRes = await EventService.uploadImage(imageFormData);
       const uploadData: UploadResponse = uploadRes.data;
       const uploadedImageUrl = uploadData.url;
 
-      // Prepare payload
       const payload: EventPayload = {
         name: formData.get("name") as string,
         description: formData.get("description") as string,
@@ -70,7 +66,7 @@ export default function EventsPage() {
         image_url: uploadedImageUrl,
       };
 
-      // Create event
+     
       const res = await EventService.create(payload);
       const newEvent: Event = res.data;
       setEvents((prev) => [...prev, newEvent]);
@@ -84,7 +80,7 @@ export default function EventsPage() {
       console.error("Create event error:", err);
       toast.error("Failed to create event");
     } finally {
-      setIsLoading(false); // Stop loading
+      setIsLoading(false); 
     }
   };
 

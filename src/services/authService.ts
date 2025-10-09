@@ -5,7 +5,6 @@ export const AuthService = {
     const formData = new URLSearchParams();
     formData.append("username", data.username);
     formData.append("password", data.password);
-
     return API.post("/login", formData, {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
