@@ -2,9 +2,6 @@ import axios from "axios";
 
 const API = axios.create({
   baseURL: "https://tickenza-backend.onrender.com",
-  headers: {
-    "Content-Type": "application/json", 
-  },
 });
 
 API.interceptors.request.use((config) => {
