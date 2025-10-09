@@ -15,12 +15,13 @@ type AuthResponse = {
   username: string;
   token: string;
 };
+
 const signinSchema = z.object({
   username: z
     .string()
     .min(8, "Username must be at least 8 characters")
     .regex(/^[A-Za-z0-9!@#$%^&*]+$/, "Invalid characters in username"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 type SigninForm = z.infer<typeof signinSchema>;
@@ -111,6 +112,7 @@ export default function SigninPage() {
                 </p>
               )}
             </div>
+
             <div>
               <label className="text-black block mb-1">Password</label>
               <input
