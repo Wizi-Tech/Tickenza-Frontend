@@ -9,22 +9,37 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation"; 
+
 const formatDate = (date: string) => date;
+
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [isLoading, setIsLoading] = useState(false)
+  const [isSaving, setIsSaving] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+
   const router = useRouter();
 
+  // Fetch events on component mount
   useEffect(() => {
-    EventService.getAll()
-      .then((res) => setEvents(res.data as Event[]))
-      .catch(() => toast.error("Failed to fetch events"));
+    const fetchEvents = async () => {
+      try {
+        setIsFetching(true);
+        const res = await EventService.getAll();
+        setEvents(res.data as Event[]);
+      } catch {
+        toast.error("Failed to fetch events");
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    fetchEvents();
   }, []);
 
+  // Filter events based on search, category, and location
   const filteredEvents = events.filter((event) => {
     return (
       event.name.toLowerCase().includes(search.toLowerCase()) &&
@@ -32,11 +47,16 @@ export default function EventsPage() {
       (location ? event.location === location : true)
     );
   });
+
+  // Handle creating a new event
   const handleCreateEvent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+
     try {
+      setIsSaving(true); // start loading
       let uploadedImageUrl = "";
+
       if (imageFile) {
         const imageFormData = new FormData();
         imageFormData.append("file", imageFile);
@@ -45,6 +65,7 @@ export default function EventsPage() {
         uploadedImageUrl = uploadData.url;
       } else {
         toast.error("Please select an image before saving.");
+        setIsSaving(false);
         return;
       }
 
@@ -62,13 +83,17 @@ export default function EventsPage() {
       const res = await EventService.create(payload);
       const newEvent: Event = res.data;
       setEvents((prev) => [...prev, newEvent]);
+
       toast.success("Event created successfully!");
       router.push(`/events/${newEvent.id}/ticket-types`);
+
       e.currentTarget.reset();
       setImageFile(null);
     } catch (err) {
       console.error("Create event error:", err);
       toast.error("Failed to create event");
+    } finally {
+      setIsSaving(false); // stop loading
     }
   };
 
@@ -103,13 +128,14 @@ export default function EventsPage() {
                   className="bg-gray-800 text-white border-gray-600 flex-1"
                 />
               </div>
-              <Button type="submit" className="bg-blue-600 text-white mt-2 disabled={isLoading}">
-               {isLoading ? "Loading..." : "Save Event"}
+              <Button type="submit" disabled={isSaving} className="bg-blue-600 text-white mt-2">
+                {isSaving ? "Saving..." : "Save Event"}
               </Button>
             </form>
           </DialogContent>
         </Dialog>
       </div>
+
       <div className="flex gap-4 mb-8">
         <Input placeholder="Search events..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-1/3" />
         <Select onValueChange={(val) => setCategory(val)}>
@@ -133,9 +159,12 @@ export default function EventsPage() {
           </SelectContent>
         </Select>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filteredEvents.length > 0 ? (
-          filteredEvents.map((event) => (
+
+      {isFetching ? (
+        <p>Loading events...</p>
+      ) : filteredEvents.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {filteredEvents.map((event) => (
             <Card key={event.id} className="overflow-hidden shadow-md rounded-2xl">
               {event.image_url && <img src={event.image_url} alt={event.name} className="w-full h-40 object-cover" />}
               <CardContent className="p-4">
@@ -147,11 +176,11 @@ export default function EventsPage() {
                 <Button className="mt-4 w-full bg-blue-500 text-white">View Details</Button>
               </CardContent>
             </Card>
-          ))
-        ) : (
-          <p>No events found.</p>
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <p>No events found.</p>
+      )}
     </div>
   );
 }
