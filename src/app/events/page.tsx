@@ -8,9 +8,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"; 
 
-// Converts 'YYYY-MM-DD' to 'DD-MM-YYYY'
+// Correctly format date to DD-MM-YYYY
 const formatDate = (date: string) => {
   const [year, month, day] = date.split("-");
   return `${day}-${month}-${year}`;
@@ -48,7 +48,7 @@ export default function EventsPage() {
       return;
     }
 
-    setIsLoading(true);
+    setIsLoading(true); // Start loading
 
     try {
       // Upload image
@@ -74,17 +74,17 @@ export default function EventsPage() {
       const res = await EventService.create(payload);
       const newEvent: Event = res.data;
       setEvents((prev) => [...prev, newEvent]);
+
       toast.success("Event created successfully!");
       router.push(`/events/${newEvent.id}/ticket-types`);
 
-      // Reset form
       e.currentTarget.reset();
       setImageFile(null);
     } catch (err) {
       console.error("Create event error:", err);
       toast.error("Failed to create event");
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -101,30 +101,10 @@ export default function EventsPage() {
               <DialogTitle className="text-white">Create New Event</DialogTitle>
             </DialogHeader>
             <form className="grid gap-4 mt-4" onSubmit={handleCreateEvent}>
-              <Input
-                name="name"
-                placeholder="Event Title"
-                className="bg-gray-800 text-white border-gray-600 placeholder-gray-400"
-                required
-              />
-              <Input
-                name="date"
-                type="date"
-                className="bg-gray-800 text-white border-gray-600"
-                required
-              />
-              <Input
-                name="time"
-                type="time"
-                className="bg-gray-800 text-white border-gray-600"
-                required
-              />
-              <Input
-                name="venue"
-                placeholder="Venue"
-                className="bg-gray-800 text-white border-gray-600 placeholder-gray-400"
-                required
-              />
+              <Input name="name" placeholder="Event Title" className="bg-gray-800 text-white border-gray-600 placeholder-gray-400" required />
+              <Input name="date" type="date" className="bg-gray-800 text-white border-gray-600" required />
+              <Input name="time" type="time" className="bg-gray-800 text-white border-gray-600" required />
+              <Input name="venue" placeholder="Venue" className="bg-gray-800 text-white border-gray-600 placeholder-gray-400" required />
               <textarea
                 name="description"
                 placeholder="Description"
@@ -148,12 +128,7 @@ export default function EventsPage() {
       </div>
 
       <div className="flex gap-4 mb-8">
-        <Input
-          placeholder="Search events..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-1/3"
-        />
+        <Input placeholder="Search events..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-1/3" />
         <Select onValueChange={(val) => setCategory(val)}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Category" />
@@ -180,9 +155,7 @@ export default function EventsPage() {
         {filteredEvents.length > 0 ? (
           filteredEvents.map((event) => (
             <Card key={event.id} className="overflow-hidden shadow-md rounded-2xl">
-              {event.image_url && (
-                <img src={event.image_url} alt={event.name} className="w-full h-40 object-cover" />
-              )}
+              {event.image_url && <img src={event.image_url} alt={event.name} className="w-full h-40 object-cover" />}
               <CardContent className="p-4">
                 <h2 className="text-xl font-semibold mb-2">{event.name}</h2>
                 <p className="text-gray-600 text-sm">{event.event_date}</p>
