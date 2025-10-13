@@ -8,8 +8,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useRouter } from "next/navigation"; 
-
 const formatDate = (date: string) => {
   const [year, month, day] = date.split("-");
   return `${day}-${month}-${year}`;
@@ -22,8 +20,7 @@ export default function EventsPage() {
   const [location, setLocation] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-
+ 
   useEffect(() => {
     EventService.getAll()
       .then((res) => setEvents(res.data as Event[]))
@@ -65,15 +62,11 @@ export default function EventsPage() {
         location: location || "Unknown",
         image_url: uploadedImageUrl,
       };
-
-     
+    
       const res = await EventService.create(payload);
       const newEvent: Event = res.data;
       setEvents((prev) => [...prev, newEvent]);
-
       toast.success("Event created successfully!");
-      router.push(`/events/${newEvent.id}/ticket-types`);
-
       e.currentTarget.reset();
       setImageFile(null);
     } catch (err) {

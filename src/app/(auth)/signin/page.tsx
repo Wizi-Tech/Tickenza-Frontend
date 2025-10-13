@@ -9,26 +9,20 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@/store/auth";
 import { AuthService } from "@/services/authService";
+
 type AuthResponse = {
   name: string;
-  username: string;
+  email: string;
   token: string;
 };
-
 const signinSchema = z.object({
-  username: z
-    .string()
-    .min(8, "Username must be at least 8 characters")
-    .regex(/^[A-Za-z0-9!@#$%^&*]+$/, "Invalid characters in username"),
+  email: z.string().email("Invalid email format"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
-
 type SigninForm = z.infer<typeof signinSchema>;
-
 export default function SigninPage() {
   const router = useRouter();
   const setUser = useAuthStore((state) => state.setUser);
-
   const {
     register,
     handleSubmit,
@@ -36,30 +30,25 @@ export default function SigninPage() {
   } = useForm<SigninForm>({
     resolver: zodResolver(signinSchema),
   });
-
   const onSubmit = async (data: SigninForm) => {
     try {
       const res = await AuthService.signin(data);
-
       if (res.status === 200) {
         const user = res.data as AuthResponse;
         setUser({
           name: user.name,
-          username: user.username,
+          username: user.email,
           token: user.token,
         });
-
         toast.success("Login Successful");
         router.push("/");
       }
     } catch (err: any) {
-      console.error("Login error:", err);
       const errorMessage =
         err.response?.data?.message || "Login failed! Try again.";
       toast.error(errorMessage);
     }
   };
-
   return (
     <>
       <Toaster position="top-center" />
@@ -68,79 +57,78 @@ export default function SigninPage() {
           className="absolute inset-0 bg-black/40 backdrop-blur-sm"
           onClick={() => router.push("/")}
         ></div>
-
-        <div className="relative bg-white p-6 rounded-xl shadow-lg w-96 z-10">
+        <div className="relative bg-white p-5 rounded-2xl shadow-lg w-full max-w-md z-10">
           <button
             onClick={() => router.push("/")}
             className="absolute top-3 right-3 text-gray-500 hover:text-black text-lg font-bold"
           >
             X
           </button>
-
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-4 mt-2">
             <img
               src="/Tickenza.png"
               alt="Tickenza Logo"
-              className="h-16 w-16 object-contain"
+              className="h-12 w-12 object-contain"
             />
           </div>
-
-          <h2 className="text-2xl font-bold text-center mb-2">
-            Welcome to Tickenza
-          </h2>
-          <p className="text-gray-500 text-center mb-6">
+          <h2 className="text-lg font-bold text-center mb-1">Welcome Back</h2>
+          <p className="text-gray-500 text-center mb-4 text-sm">
             Please login to continue
           </p>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <div>
-              <label className="text-black block mb-1">Username</label>
+              <label className="text-black block mb-1 text-m">Email</label>
               <input
-                type="text"
-                placeholder="Enter Username"
-                {...register("username")}
-                className={`w-full border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 ${
-                  errors.username
+                type="email"
+                placeholder="Enter Email"
+                {...register("email")}
+                className={`w-full border px-2 py-1.5 rounded-md text-sm focus:outline-none focus:ring-1 ${
+                  errors.email
                     ? "border-red-500 focus:ring-red-500"
                     : "focus:ring-green-500"
                 }`}
               />
-              {errors.username && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.username.message}
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.email.message}
                 </p>
               )}
             </div>
-
             <div>
-              <label className="text-black block mb-1">Password</label>
+              <label className="text-black block mb-1 text-s">Password</label>
               <input
                 type="password"
                 placeholder="Enter Password"
                 {...register("password")}
-                className={`w-full border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 ${
+                className={`w-full border px-2 py-1.5 rounded-md text-sm focus:outline-none focus:ring-1 ${
                   errors.password
                     ? "border-red-500 focus:ring-red-500"
                     : "focus:ring-green-500"
                 }`}
               />
               {errors.password && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-red-500 text-xs mt-1">
                   {errors.password.message}
                 </p>
               )}
             </div>
-
+            <div className="text-left">
+              <Link
+                href="/forgot-password"
+                className="text-blue-600 text-s hover:underline"
+              >
+                Forgot Password
+              </Link>
+            </div>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 text-sm"
             >
               {isSubmitting ? "Loading..." : "Login"}
             </button>
           </form>
-
-          <p className="text-center text-gray-600 mt-4 text-sm">
+          <p className="text-center text-gray-600 mt-3 text-s">
             Don't have an account?{" "}
             <Link href="/signup" className="text-blue-600 hover:underline">
               Signup
