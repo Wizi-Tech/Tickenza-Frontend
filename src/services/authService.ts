@@ -5,9 +5,9 @@ export const AuthService = {
     const formData = new URLSearchParams();
     formData.append("email", data.email);
     formData.append("password", data.password);
-    return API.post("/login", formData, {
+    return API.post("/signin", formData, {
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type": "application/json",
       },
     });
   },
