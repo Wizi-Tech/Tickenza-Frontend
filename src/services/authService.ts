@@ -2,16 +2,18 @@ import API from "./api";
 
 export const AuthService = {
   signin: (data: { email: string; password: string }) => {
-    const payload = {
-      email: data.email,
-      password: data.password,
-    };
-
-    return API.post("/signin", payload, {
-      headers: {
-        "Content-Type": "application/json",
+    return API.post(
+      "/signin",
+      {
+        email: data.email,
+        password: data.password,
       },
-    });
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   },
 
   signup: (data: { name: string; email: string; password: string; role: "user" | "admin" }) => {
@@ -19,7 +21,7 @@ export const AuthService = {
       name: data.name,
       email: data.email,
       password: data.password,
-      confirm_password: data.password, 
+      confirm_password: data.password,
       role: data.role === "admin" ? "Admin" : "User",
     };
 
