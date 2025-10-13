@@ -2,16 +2,13 @@ import API from "./api";
 
 export const AuthService = {
   signin: (data: { email: string; password: string }) => {
-    return API.post(
-      "/signin",
+    return API.post("/signin",
       {
         email: data.email,
         password: data.password,
       },
       {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json", },
       }
     );
   },
@@ -24,7 +21,6 @@ export const AuthService = {
       confirm_password: data.password,
       role: data.role === "admin" ? "Admin" : "User",
     };
-
     return API.post("/register", payload, {
       headers: {
         "Content-Type": "application/json",
