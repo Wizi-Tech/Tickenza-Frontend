@@ -3,7 +3,7 @@ import API from "./api";
 export const AuthService = {
   signin: (data: { email: string; password: string }) => {
     const formData = new URLSearchParams();
-    formData.append("email", data.email); 
+    formData.append("email", data.email);
     formData.append("password", data.password);
     return API.post("/login", formData, {
       headers: {
@@ -11,8 +11,16 @@ export const AuthService = {
       },
     });
   },
+
   signup: (data: { name: string; email: string; password: string; role: "user" | "admin" }) => {
-    return API.post("/signup", data, {
+    const payload = {
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      confirm_password: data.password,
+      role: data.role === "admin" ? "Admin" : "User", 
+    };
+    return API.post("/register", payload, {
       headers: {
         "Content-Type": "application/json",
       },
