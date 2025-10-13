@@ -7,7 +7,7 @@ export const AuthService = {
     formData.append("password", data.password);
     return API.post("/signin", formData, {
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
       },
     });
   },
