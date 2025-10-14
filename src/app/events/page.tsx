@@ -1,92 +1,135 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import API from "@/services/api";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import toast from "react-hot-toast";
+import { toast } from "react-hot-toast";
 
-interface Event {
-  id: string;
-  name: string;
-  event_date: string;
-  status: string;
-}
-
-export default function EventListPage() {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [filters, setFilters] = useState({
+export default function AddEditEventPage() {
+  const [eventData, setEventData] = useState({
     name: "",
+    venue: "",
     date: "",
-    status: "",
+    time: "",
+    capacity: "",
+    image: null as File | null,
   });
-  const [loading, setLoading] = useState(false);
-  const fetchEvents = async () => {
-    setLoading(true);
-    try {
-      const { name, date, status } = filters;
-      const res = await API.get<Event[]>("/events", {
-        params: {
-          name: name || undefined,
-          date: date || undefined,
-          status: status || undefined,
-        },
-      });
-      setEvents(res.data ?? []);
-    } catch (err) {
-      console.error("Error fetching events:", err);
-      toast.error("Failed to load events");
-    } finally {
-      setLoading(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, files } = e.target;
+    if (name === "image" && files) {
+      setEventData({ ...eventData, image: files[0] });
+    } else {
+      setEventData({ ...eventData, [name]: value });
     }
   };
-  useEffect(() => {
-    fetchEvents();
-  }, []);
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!eventData.name || !eventData.venue || !eventData.date || !eventData.time || !eventData.capacity) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("name", eventData.name);
+      formData.append("venue", eventData.venue);
+      formData.append("date", eventData.date);
+      formData.append("time", eventData.time);
+      formData.append("capacity", eventData.capacity);
+      if (eventData.image) formData.append("image", eventData.image);
+
+      const response = await fetch("/create-event", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Failed to create event");
+      }
+
+      toast.success("Event saved successfully!");
+      setEventData({ name: "", venue: "", date: "", time: "", capacity: "", image: null });
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong");
+    }
   };
+
   return (
-    <div className="px-8 py-10">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Event List (Admin)</h1>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <Input placeholder="Search by event name" name="name" value={filters.name} onChange={handleChange}/>
-        <Input type="date" name="date" value={filters.date} onChange={handleChange}/>
-        <select name="status" value={filters.status} onChange={handleChange} className="border rounded-md p-2 bg-white text-gray-800">
-          <option value="">All Status</option>
-          <option value="upcoming">Upcoming</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-        <Button onClick={fetchEvents} className="bg-blue-600 text-white">Apply Filters </Button>
-      </div>
-      {loading ? (
-        <p>Loading events...</p>
-      ) : events.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.map((event) => (
-            <Card key={event.id} className="shadow-md rounded-xl">
-              <CardContent className="p-4">
-                <h2 className="text-lg font-semibold">{event.name}</h2>
-                <p className="text-gray-600 text-sm mt-1"> Date: {event.event_date}</p>
-                <p className="text-gray-600 text-sm mt-1">
-                  Status:{" "}
-                  <span className={`font-medium ${ event.status === "upcoming"? "text-green-600": event.status === "completed"? "text-blue-600": "text-red-600" }`} >
-                    {event.status}
-                  </span>
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Add / Edit Event</h1>
+      <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit}>
+        <div>
+          <label className="block font-medium mb-1">Event Name *</label>
+          <Input
+            name="name"
+            value={eventData.name}
+            onChange={handleChange}
+            placeholder="Enter event name"
+          />
         </div>
-      ) : (
-        <p>No events found.</p>
-      )}
+        <div>
+          <label className="block font-medium mb-1">Venue *</label>
+          <Input
+            name="venue"
+            value={eventData.venue}
+            onChange={handleChange}
+            placeholder="Enter venue"
+          />
+        </div>
+        <div>
+          <label className="block font-medium mb-1">Date *</label>
+          <Input
+            type="date"
+            name="date"
+            value={eventData.date}
+            onChange={handleChange}
+          />
+        </div>
+        <div>
+          <label className="block font-medium mb-1">Time *</label>
+          <Input
+            type="time"
+            name="time"
+            value={eventData.time}
+            onChange={handleChange}
+          />
+        </div>
+        <div>
+          <label className="block font-medium mb-1">Capacity *</label>
+          <Input
+            type="number"
+            name="capacity"
+            value={eventData.capacity}
+            onChange={handleChange}
+            placeholder="Enter number of attendees"
+          />
+        </div>
+        <div>
+          <label className="block font-medium mb-1">Upload Image</label>
+          <Input
+            type="file"
+            name="image"
+            onChange={handleChange}
+            accept="image/*"
+          />
+          {eventData.image && (
+            <p className="mt-2 text-sm text-gray-500">{eventData.image.name}</p>
+          )}
+        </div>
+        <div className="md:col-span-2 flex gap-4 mt-4">
+          <Button type="submit" className="bg-blue-600 hover:bg-blue-700">Save Event</Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setEventData({ name: "", venue: "", date: "", time: "", capacity: "", image: null })}
+          >
+            Cancel
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
