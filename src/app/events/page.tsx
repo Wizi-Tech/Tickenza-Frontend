@@ -1,218 +1,92 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { EventService } from "@/services/eventService";
-import toast from "react-hot-toast";
-import { Event, EventPayload, UploadResponse } from "@/types/event";
+import API from "@/services/api";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import toast from "react-hot-toast";
 
-const formatDate = (date: string) => {
-  const [year, month, day] = date.split("-");
-  return `${day}-${month}-${year}`;
-};
+interface Event {
+  id: string;
+  name: string;
+  event_date: string;
+  status: string;
+}
 
-export default function EventsPage() {
+export default function EventListPage() {
   const [events, setEvents] = useState<Event[]>([]);
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
-  const [location, setLocation] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    EventService.getAll()
-      .then((res) => setEvents(res.data as Event[]))
-      .catch(() => toast.error("Failed to fetch events"));
-  }, []);
-
-  const filteredEvents = events.filter((event) => {
-    return (
-      event.name.toLowerCase().includes(search.toLowerCase()) &&
-      (category ? event.category === category : true) &&
-      (location ? event.location === location : true)
-    );
+  const [filters, setFilters] = useState({
+    name: "",
+    date: "",
+    status: "",
   });
-
-  const handleCreateEvent = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-
-    if (!imageFile) {
-      toast.error("Please select an image before saving.");
-      return;
-    }
-
-    setIsLoading(true);
+  const [loading, setLoading] = useState(false);
+  const fetchEvents = async () => {
+    setLoading(true);
     try {
-      const imageFormData = new FormData();
-      imageFormData.append("file", imageFile);
-      const uploadRes = await EventService.uploadImage(imageFormData);
-      const uploadData: UploadResponse = uploadRes.data;
-      const uploadedImageUrl = uploadData.url;
-
-      const payload: EventPayload = {
-        name: formData.get("name") as string,
-        description: formData.get("description") as string,
-        event_date: formatDate(formData.get("date") as string),
-        event_time: formData.get("time") as string,
-        venue: formData.get("venue") as string,
-        category: category || "General",
-        location: location || "Unknown",
-        image_url: uploadedImageUrl,
-      };
-
-      const res = await EventService.create(payload);
-      const newEvent: Event = res.data;
-      setEvents((prev) => [...prev, newEvent]);
-      toast.success("Event created successfully!");
-      e.currentTarget.reset();
-      setImageFile(null);
+      const { name, date, status } = filters;
+      const res = await API.get<Event[]>("/events", {
+        params: {
+          name: name || undefined,
+          date: date || undefined,
+          status: status || undefined,
+        },
+      });
+      setEvents(res.data ?? []);
     } catch (err) {
-      console.error("Create event error:", err);
-      toast.error("Failed to create event");
+      console.error("Error fetching events:", err);
+      toast.error("Failed to load events");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
-
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
   return (
     <div className="px-8 py-10">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Events</h1>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="bg-blue-600 text-white">+ Create Event</Button>
-          </DialogTrigger>
-          <DialogContent className="bg-black text-white rounded-lg p-6 max-w-lg">
-            <DialogHeader>
-              <DialogTitle className="text-white">Create New Event</DialogTitle>
-            </DialogHeader>
-            <form className="grid gap-4 mt-4" onSubmit={handleCreateEvent}>
-              <Input
-                name="name"
-                placeholder="Event Title"
-                className="bg-gray-800 text-white border-gray-600 placeholder-gray-400"
-                required
-              />
-              <Input
-                name="date"
-                type="date"
-                className="bg-gray-800 text-white border-gray-600"
-                required
-              />
-              <Input
-                name="time"
-                type="time"
-                className="bg-gray-800 text-white border-gray-600"
-                required
-              />
-              <Input
-                name="venue"
-                placeholder="Venue"
-                className="bg-gray-800 text-white border-gray-600 placeholder-gray-400"
-                required
-              />
-              <textarea
-                name="description"
-                placeholder="Description"
-                className="bg-gray-800 text-white border-gray-600 p-2 rounded-md placeholder-gray-400"
-                required
-              />
-              <div className="flex gap-2 items-center">
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                  className="bg-gray-800 text-white border-gray-600 flex-1"
-                />
-              </div>
-              <Button
-                type="submit"
-                className="bg-blue-600 text-white mt-2"
-                disabled={isLoading}
-              >
-                {isLoading ? "Loading..." : "Save Event"}
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">Event List (Admin)</h1>
       </div>
-
-     
-      <div className="flex gap-4 mb-8">
-        <Input
-          placeholder="Search events..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-1/3"
-        />
-        <Select onValueChange={(val) => setCategory(val)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Concert">Concerts</SelectItem>
-            <SelectItem value="Workshop">Workshops</SelectItem>
-            <SelectItem value="Sports">Sports</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select onValueChange={(val) => setLocation(val)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Location" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Chennai">Chennai</SelectItem>
-            <SelectItem value="Bangalore">Bangalore</SelectItem>
-            <SelectItem value="Delhi">Delhi</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <Input placeholder="Search by event name" name="name" value={filters.name} onChange={handleChange}/>
+        <Input type="date" name="date" value={filters.date} onChange={handleChange}/>
+        <select name="status" value={filters.status} onChange={handleChange} className="border rounded-md p-2 bg-white text-gray-800">
+          <option value="">All Status</option>
+          <option value="upcoming">Upcoming</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <Button onClick={fetchEvents} className="bg-blue-600 text-white">Apply Filters </Button>
       </div>
-
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filteredEvents.length > 0 ? (
-          filteredEvents.map((event) => (
-            <Card
-              key={event.id}
-              className="overflow-hidden shadow-md rounded-2xl"
-            >
-              {event.image_url && (
-                <img
-                  src={event.image_url}
-                  alt={event.name}
-                  className="w-full h-40 object-cover"
-                />
-              )}
+      {loading ? (
+        <p>Loading events...</p>
+      ) : events.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {events.map((event) => (
+            <Card key={event.id} className="shadow-md rounded-xl">
               <CardContent className="p-4">
-                <h2 className="text-xl font-semibold mb-2">{event.name}</h2>
-                <p className="text-gray-600 text-sm">{event.event_date}</p>
-                <p className="text-gray-600 text-sm">{event.event_time}</p>
-                <p className="text-gray-600 text-sm">{event.venue}</p>
-                <p className="text-gray-500 mt-2 text-sm">
-                  {event.description}
+                <h2 className="text-lg font-semibold">{event.name}</h2>
+                <p className="text-gray-600 text-sm mt-1"> Date: {event.event_date}</p>
+                <p className="text-gray-600 text-sm mt-1">
+                  Status:{" "}
+                  <span className={`font-medium ${ event.status === "upcoming"? "text-green-600": event.status === "completed"? "text-blue-600": "text-red-600" }`} >
+                    {event.status}
+                  </span>
                 </p>
               </CardContent>
             </Card>
-          ))
-        ) : (
-          <p>No events found.</p>
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <p>No events found.</p>
+      )}
     </div>
   );
 }
