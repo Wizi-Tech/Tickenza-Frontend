@@ -13,16 +13,23 @@ type AuthResponse = {
   email: string;
   token: string;
 };
+const nameSchema = z
+  .string()
+  .min(3, "Name must be at least 3 characters long")
+  .refine((val) => /^[A-Za-z\s]+$/.test(val), {
+    message: "Only alphabets allowed",
+  })
+  .refine((val) => /^[A-Z]/.test(val), {
+    message: "First letter must be capital",
+  });
+const emailSchema = z
+  .string()
+  .min(1, "Email is required")
+  .regex(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/, "Invalid email format");
 const signupSchema = z
   .object({
-    name: z
-      .string()
-      .min(3, "Name must be at least 3 characters long")
-      .regex(
-        /^[A-Z][a-zA-Z]*(\s[A-Z][a-zA-Z]*)*$/,
-        "First letter capital & only alphabets allowed"
-      ),
-    email: z.string().email("Invalid email format"),
+    name: nameSchema,
+    email: emailSchema,
     password: z
       .string()
       .min(5, "Password must be at least 5 characters")
@@ -41,6 +48,7 @@ const signupSchema = z
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
+
 type SignupForm = z.infer<typeof signupSchema>;
 export default function SignUpPage() {
   const router = useRouter();
@@ -58,7 +66,6 @@ export default function SignUpPage() {
         role: data.role,
       };
       const res = await AuthService.signup(payload);
-
       if (res.status === 200) {
         toast.success("Signup Successful!");
         router.push("/signin");
@@ -69,6 +76,7 @@ export default function SignUpPage() {
       toast.error(errorMessage);
     }
   };
+
   return (
     <>
       <Toaster position="top-center" />
@@ -80,6 +88,7 @@ export default function SignUpPage() {
           >
             X
           </button>
+
           <div className="flex justify-center mb-2 mt-1">
             <img
               src="/Tickenza.png"
@@ -87,6 +96,7 @@ export default function SignUpPage() {
               className="h-10 w-10 object-contain"
             />
           </div>
+
           <h2 className="text-lg font-bold text-center mb-1">Create Account</h2>
           <p className="text-gray-500 text-center mb-3 text-sm">
             Please signup to continue
@@ -121,7 +131,9 @@ export default function SignUpPage() {
                 }`}
               />
               {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.email.message}
+                </p>
               )}
             </div>
             <div>
@@ -137,7 +149,9 @@ export default function SignUpPage() {
                 }`}
               />
               {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.password.message}
+                </p>
               )}
             </div>
             <div>
@@ -178,7 +192,9 @@ export default function SignUpPage() {
                 <option value="admin">Admin</option>
               </select>
               {errors.role && (
-                <p className="text-red-500 text-xs mt-1">{errors.role.message}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.role.message}
+                </p>
               )}
             </div>
             <button
