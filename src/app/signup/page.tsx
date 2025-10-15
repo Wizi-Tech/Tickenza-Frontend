@@ -29,7 +29,8 @@ const signupSchema = z
     email: z
       .string()
       .min(1, "Email is required")
-     .regex(/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,4}$/, "Invalid email format"),
+    .regex(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/i, "Invalid email format"),
+
     password: z
       .string()
       .min(5, "Password must be at least 5 characters")
