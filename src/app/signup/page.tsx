@@ -19,7 +19,7 @@ const signupSchema = z
   .object({
     name: z
       .string()
-      .min(3, "Name must be at least 3 characters long")
+      .min(3, "Name must be at least 3 characters")
       .refine((val) => /^[A-Za-z\s]+$/.test(val), {
         message: "Only alphabets allowed",
       })
@@ -29,7 +29,7 @@ const signupSchema = z
     email: z
       .string()
       .min(1, "Email is required")
-      .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email format"),
+     .regex(/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,4}$/, "Invalid email format"),
     password: z
       .string()
       .min(5, "Password must be at least 5 characters")
