@@ -8,7 +8,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthService } from "@/services/authService";
-
 type AuthResponse = {
   name: string;
   email: string;
@@ -18,11 +17,24 @@ const signupSchema = z
   .object({
     name: z
       .string()
-      .min(1, "Name is required")
-      .regex(/^[A-Z][a-zA-Z]*$/, "First letter capital & only alphabets allowed"),
+      .min(3, "Name must be at least 3 characters long")
+      .regex(
+        /^[A-Z][a-zA-Z]*(\s[A-Z][a-zA-Z]*)*$/,
+        "First letter capital & only alphabets allowed"
+      ),
     email: z.string().email("Invalid email format"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(8, "Confirm Password is required"),
+    password: z
+      .string()
+      .min(5, "Password must be at least 5 characters")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/[0-9]/, "Password must contain at least one number")
+      .regex(
+        /[@#$%&*!?^]/,
+        "Password must contain at least one special character (@, #, $, %, &, *, !, ?)"
+      )
+      .refine((val) => !/\s/.test(val), "Password must not contain spaces"),
+    confirmPassword: z.string().min(1, "Confirm Password is required"),
     role: z.enum(["user", "admin"] as const, { message: "Role is required" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -46,6 +58,7 @@ export default function SignUpPage() {
         role: data.role,
       };
       const res = await AuthService.signup(payload);
+
       if (res.status === 200) {
         toast.success("Signup Successful!");
         router.push("/signin");
@@ -68,10 +81,16 @@ export default function SignUpPage() {
             X
           </button>
           <div className="flex justify-center mb-2 mt-1">
-            <img src="/Tickenza.png" alt="Tickenza Logo" className="h-10 w-10 object-contain" />
+            <img
+              src="/Tickenza.png"
+              alt="Tickenza Logo"
+              className="h-10 w-10 object-contain"
+            />
           </div>
           <h2 className="text-lg font-bold text-center mb-1">Create Account</h2>
-          <p className="text-gray-500 text-center mb-3 text-sm">Please signup to continue</p>
+          <p className="text-gray-500 text-center mb-3 text-sm">
+            Please signup to continue
+          </p>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
             <div>
               <label className="text-black block mb-1 text-sm">Name</label>
@@ -80,12 +99,15 @@ export default function SignUpPage() {
                 placeholder="Enter your name"
                 {...register("name")}
                 className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
-                  errors.name ? "border-red-500 focus:ring-red-500" : "focus:ring-green-500"
+                  errors.name
+                    ? "border-red-500 focus:ring-red-500"
+                    : "focus:ring-green-500"
                 }`}
               />
-              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
+              {errors.name && (
+                <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+              )}
             </div>
-
             <div>
               <label className="text-black block mb-1 text-sm">Email</label>
               <input
@@ -93,44 +115,60 @@ export default function SignUpPage() {
                 placeholder="Enter email"
                 {...register("email")}
                 className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
-                  errors.email ? "border-red-500 focus:ring-red-500" : "focus:ring-green-500"
+                  errors.email
+                    ? "border-red-500 focus:ring-red-500"
+                    : "focus:ring-green-500"
                 }`}
               />
-              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+              )}
             </div>
-
             <div>
               <label className="text-black block mb-1 text-sm">Password</label>
               <input
                 type="password"
-                placeholder="Enter password"
+                placeholder="Enter password (Min 5 chars, 1 uppercase, 1 number, 1 special)"
                 {...register("password")}
                 className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
-                  errors.password ? "border-red-500 focus:ring-red-500" : "focus:ring-green-500"
+                  errors.password
+                    ? "border-red-500 focus:ring-red-500"
+                    : "focus:ring-green-500"
                 }`}
               />
-              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+              )}
             </div>
-
             <div>
-              <label className="text-black block mb-1 text-sm">Confirm Password</label>
+              <label className="text-black block mb-1 text-sm">
+                Confirm Password
+              </label>
               <input
                 type="password"
                 placeholder="Re-enter password"
                 {...register("confirmPassword")}
                 className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
-                  errors.confirmPassword ? "border-red-500 focus:ring-red-500" : "focus:ring-green-500"
+                  errors.confirmPassword
+                    ? "border-red-500 focus:ring-red-500"
+                    : "focus:ring-green-500"
                 }`}
               />
-              {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>}
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
             </div>
             <div>
               <label className="text-black block mb-1 text-sm">Role</label>
               <select
                 {...register("role")}
-                defaultValue="" 
+                defaultValue=""
                 className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
-                  errors.role ? "border-red-500 focus:ring-red-500" : "focus:ring-green-500"
+                  errors.role
+                    ? "border-red-500 focus:ring-red-500"
+                    : "focus:ring-green-500"
                 }`}
               >
                 <option value="" disabled>
@@ -139,7 +177,9 @@ export default function SignUpPage() {
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
               </select>
-              {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role.message}</p>}
+              {errors.role && (
+                <p className="text-red-500 text-xs mt-1">{errors.role.message}</p>
+              )}
             </div>
             <button
               type="submit"
