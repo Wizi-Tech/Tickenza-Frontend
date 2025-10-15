@@ -30,7 +30,6 @@ const signupSchema = z
       .string()
       .min(1, "Email is required")
       .regex(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|in)$/i, "Invalid email format"),
-
     password: z
       .string()
       .min(5, "Password must be at least 5 characters")
@@ -112,24 +111,24 @@ export default function SignUpPage() {
           </p>
 
           {/* Signup Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-2.5 sm:space-y-3">
             {/* Name */}
             <div>
-              <label className="text-black block mb-1 text-sm sm:text-base">
+              <label className="text-black block mb-1 text-xs sm:text-sm">
                 Name
               </label>
               <input
                 type="text"
                 placeholder="Enter your name"
                 {...register("name")}
-                className={`w-full border px-3 py-2 rounded-md text-sm sm:text-base focus:outline-none focus:ring-1 ${
+                className={`w-full border px-2 py-1.5 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-1 ${
                   errors.name
                     ? "border-red-500 focus:ring-red-500"
                     : "focus:ring-green-500"
                 }`}
               />
               {errors.name && (
-                <p className="text-red-500 text-xs mt-1 sm:text-sm">
+                <p className="text-red-500 text-[10px] mt-1 sm:text-xs">
                   {errors.name.message}
                 </p>
               )}
@@ -137,21 +136,21 @@ export default function SignUpPage() {
 
             {/* Email */}
             <div>
-              <label className="text-black block mb-1 text-sm sm:text-base">
+              <label className="text-black block mb-1 text-xs sm:text-sm">
                 Email
               </label>
               <input
                 type="email"
                 placeholder="Enter email"
                 {...register("email")}
-                className={`w-full border px-3 py-2 rounded-md text-sm sm:text-base focus:outline-none focus:ring-1 ${
+                className={`w-full border px-2 py-1.5 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-1 ${
                   errors.email
                     ? "border-red-500 focus:ring-red-500"
                     : "focus:ring-green-500"
                 }`}
               />
               {errors.email && (
-                <p className="text-red-500 text-xs mt-1 sm:text-sm">
+                <p className="text-red-500 text-[10px] mt-1 sm:text-xs">
                   {errors.email.message}
                 </p>
               )}
@@ -159,21 +158,21 @@ export default function SignUpPage() {
 
             {/* Password */}
             <div>
-              <label className="text-black block mb-1 text-sm sm:text-base">
+              <label className="text-black block mb-1 text-xs sm:text-sm">
                 Password
               </label>
               <input
                 type="password"
                 placeholder="Enter password"
                 {...register("password")}
-                className={`w-full border px-3 py-2 rounded-md text-sm sm:text-base focus:outline-none focus:ring-1 ${
+                className={`w-full border px-2 py-1.5 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-1 ${
                   errors.password
                     ? "border-red-500 focus:ring-red-500"
                     : "focus:ring-green-500"
                 }`}
               />
               {errors.password && (
-                <p className="text-red-500 text-xs mt-1 sm:text-sm">
+                <p className="text-red-500 text-[10px] mt-1 sm:text-xs">
                   {errors.password.message}
                 </p>
               )}
@@ -181,21 +180,21 @@ export default function SignUpPage() {
 
             {/* Confirm Password */}
             <div>
-              <label className="text-black block mb-1 text-sm sm:text-base">
+              <label className="text-black block mb-1 text-xs sm:text-sm">
                 Confirm Password
               </label>
               <input
                 type="password"
                 placeholder="Re-enter password"
                 {...register("confirmPassword")}
-                className={`w-full border px-3 py-2 rounded-md text-sm sm:text-base focus:outline-none focus:ring-1 ${
+                className={`w-full border px-2 py-1.5 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-1 ${
                   errors.confirmPassword
                     ? "border-red-500 focus:ring-red-500"
                     : "focus:ring-green-500"
                 }`}
               />
               {errors.confirmPassword && (
-                <p className="text-red-500 text-xs mt-1 sm:text-sm">
+                <p className="text-red-500 text-[10px] mt-1 sm:text-xs">
                   {errors.confirmPassword.message}
                 </p>
               )}
@@ -203,13 +202,13 @@ export default function SignUpPage() {
 
             {/* Role */}
             <div>
-              <label className="text-black block mb-1 text-sm sm:text-base">
+              <label className="text-black block mb-1 text-xs sm:text-sm">
                 Role
               </label>
               <select
                 {...register("role")}
                 defaultValue=""
-                className={`w-full border px-3 py-2 rounded-md text-sm sm:text-base focus:outline-none focus:ring-1 ${
+                className={`w-full border px-2 py-1.5 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-1 ${
                   errors.role
                     ? "border-red-500 focus:ring-red-500"
                     : "focus:ring-green-500"
@@ -222,7 +221,7 @@ export default function SignUpPage() {
                 <option value="admin">Admin</option>
               </select>
               {errors.role && (
-                <p className="text-red-500 text-xs mt-1 sm:text-sm">
+                <p className="text-red-500 text-[10px] mt-1 sm:text-xs">
                   {errors.role.message}
                 </p>
               )}
@@ -232,14 +231,14 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-blue-600 text-white py-2 sm:py-3 rounded-md hover:bg-blue-700 transition disabled:opacity-50 text-sm sm:text-base font-medium"
+              className="w-full bg-blue-600 text-white py-2 sm:py-2.5 rounded-md hover:bg-blue-700 transition disabled:opacity-50 text-sm sm:text-sm font-medium"
             >
               {isSubmitting ? "Loading..." : "Signup"}
             </button>
           </form>
 
           {/* Login Link */}
-          <p className="text-center text-gray-600 mt-3 text-sm sm:text-base">
+          <p className="text-center text-gray-600 mt-3 text-xs sm:text-sm">
             Already have an account?{" "}
             <Link href="/signin" className="text-blue-600 hover:underline">
               Login
