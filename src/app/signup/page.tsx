@@ -73,96 +73,77 @@ export default function SignUpPage() {
   return (
     <>
       <Toaster position="top-center" />
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-3">
-        <div className="relative bg-white rounded-xl shadow-lg w-full max-w-sm sm:max-w-md md:max-w-lg z-10 p-4 sm:p-5 overflow-hidden max-h-[85vh]">
-          {/* Close Button */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-md z-10 p-4">
           <button
             onClick={() => router.push("/")}
-            className="absolute top-2.5 right-3 text-gray-500 hover:text-black text-lg font-bold"
+            className="absolute top-2 right-2 text-gray-500 hover:text-black text-lg font-bold"
           >
-            ×
+            X
           </button>
-
-          {/* Logo */}
           <div className="flex justify-center mb-2 mt-1">
             <img
               src="/Tickenza.png"
               alt="Tickenza Logo"
-              className="h-8 w-8 object-contain"
+              className="h-10 w-10 object-contain"
             />
           </div>
-
-          {/* Title */}
-          <h2 className="text-lg font-semibold text-center mb-0 text-gray-900">
-            Create Account
-          </h2>
-          <p className="text-gray-500 text-center mb-3 text-[12px]">
+          <h2 className="text-lg font-bold text-center mb-1">Create Account</h2>
+          <p className="text-gray-500 text-center mb-3 text-sm">
             Please signup to continue
           </p>
-
-          {/* Signup Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-2.5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
             {/* Name */}
             <div>
-              <label className="text-black block mb-0.5 text-[12px] font-medium">
-                Name
-              </label>
+              <label className="text-black block mb-1 text-sm">Name</label>
               <input
                 type="text"
                 placeholder="Enter your name"
                 {...register("name")}
-                className={`w-full border px-3 py-1.5 rounded-lg text-[12px] text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 ${
+                className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
                   errors.name
                     ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-blue-500"
+                    : "focus:ring-green-500"
                 }`}
               />
               {errors.name && (
-                <p className="text-red-500 text-[10px] mt-0.5">
-                  {errors.name.message}
-                </p>
+                <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
               )}
             </div>
 
             {/* Email */}
             <div>
-              <label className="text-black block mb-0.5 text-[12px] font-medium">
-                Email
-              </label>
+              <label className="text-black block mb-1 text-sm">Email</label>
               <input
                 type="email"
                 placeholder="Enter email"
                 {...register("email")}
-                className={`w-full border px-3 py-1.5 rounded-lg text-[12px] text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 ${
+                className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
                   errors.email
                     ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-blue-500"
+                    : "focus:ring-green-500"
                 }`}
               />
               {errors.email && (
-                <p className="text-red-500 text-[10px] mt-0.5">
-                  {errors.email.message}
-                </p>
+                <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
               )}
             </div>
 
             {/* Password */}
             <div>
-              <label className="text-black block mb-0.5 text-[12px] font-medium">
-                Password
-              </label>
+              <label className="text-black block mb-1 text-sm">Password</label>
               <input
                 type="password"
                 placeholder="Enter password"
                 {...register("password")}
-                className={`w-full border px-3 py-1.5 rounded-lg text-[12px] text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 ${
+                className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
                   errors.password
                     ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-blue-500"
+                    : "focus:ring-green-500"
                 }`}
               />
               {errors.password && (
-                <p className="text-red-500 text-[10px] mt-0.5">
+                <p className="text-red-500 text-xs mt-1">
                   {errors.password.message}
                 </p>
               )}
@@ -170,21 +151,21 @@ export default function SignUpPage() {
 
             {/* Confirm Password */}
             <div>
-              <label className="text-black block mb-0.5 text-[12px] font-medium">
+              <label className="text-black block mb-1 text-sm">
                 Confirm Password
               </label>
               <input
                 type="password"
                 placeholder="Re-enter password"
                 {...register("confirmPassword")}
-                className={`w-full border px-3 py-1.5 rounded-lg text-[12px] text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 ${
+                className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
                   errors.confirmPassword
                     ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-blue-500"
+                    : "focus:ring-green-500"
                 }`}
               />
               {errors.confirmPassword && (
-                <p className="text-red-500 text-[10px] mt-0.5">
+                <p className="text-red-500 text-xs mt-1">
                   {errors.confirmPassword.message}
                 </p>
               )}
@@ -192,16 +173,14 @@ export default function SignUpPage() {
 
             {/* Role */}
             <div>
-              <label className="text-black block mb-0.5 text-[12px] font-medium">
-                Role
-              </label>
+              <label className="text-black block mb-1 text-sm">Role</label>
               <select
                 {...register("role")}
                 defaultValue=""
-                className={`w-full border px-3 py-1.5 rounded-lg text-[12px] text-gray-700 focus:outline-none focus:ring-2 ${
+                className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
                   errors.role
                     ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-blue-500"
+                    : "focus:ring-green-500"
                 }`}
               >
                 <option value="" disabled>
@@ -211,9 +190,7 @@ export default function SignUpPage() {
                 <option value="admin">Admin</option>
               </select>
               {errors.role && (
-                <p className="text-red-500 text-[10px] mt-0.5">
-                  {errors.role.message}
-                </p>
+                <p className="text-red-500 text-xs mt-1">{errors.role.message}</p>
               )}
             </div>
 
@@ -221,14 +198,13 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-blue-600 text-white py-1.5 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 text-[13px] font-semibold shadow-sm mt-1"
+              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50 text-sm"
             >
               {isSubmitting ? "Loading..." : "Signup"}
             </button>
           </form>
 
-          {/* Login Link */}
-          <p className="text-center text-gray-600 mt-2 text-[12px]">
+          <p className="text-center text-gray-600 mt-2 text-sm">
             Already have an account?{" "}
             <Link href="/signin" className="text-blue-600 hover:underline">
               Login
