@@ -128,7 +128,7 @@ export default function SignUpPage() {
               <label className="text-black block mb-1 text-sm">Password</label>
               <input
                 type="password"
-                placeholder="Enter password (Min 5 chars, 1 uppercase, 1 number, 1 special)"
+                placeholder="Enter password"
                 {...register("password")}
                 className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
                   errors.password
