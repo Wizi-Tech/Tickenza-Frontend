@@ -73,77 +73,99 @@ export default function SignUpPage() {
   return (
     <>
       <Toaster position="top-center" />
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-        <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-md z-10 p-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 sm:px-6">
+        <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-md sm:max-w-lg md:max-w-md z-10 p-5 sm:p-8">
+          {/* Close button */}
           <button
             onClick={() => router.push("/")}
-            className="absolute top-2 right-2 text-gray-500 hover:text-black text-lg font-bold"
+            className="absolute top-3 right-3 text-gray-500 hover:text-black text-lg font-bold"
           >
-            X
+            ✕
           </button>
-          <div className="flex justify-center mb-2 mt-1">
+
+          {/* Logo */}
+          <div className="flex justify-center mb-3 mt-2">
             <img
               src="/Tickenza.png"
               alt="Tickenza Logo"
-              className="h-10 w-10 object-contain"
+              className="h-12 w-12 sm:h-14 sm:w-14 object-contain"
             />
           </div>
-          <h2 className="text-lg font-bold text-center mb-1">Create Account</h2>
-          <p className="text-gray-500 text-center mb-3 text-sm">
+
+          {/* Heading */}
+          <h2 className="text-xl sm:text-2xl font-bold text-center mb-2 text-gray-800">
+            Create Account
+          </h2>
+          <p className="text-gray-500 text-center mb-5 text-sm sm:text-base">
             Please signup to continue
           </p>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
+
+          {/* Form */}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-3 sm:space-y-4"
+          >
             {/* Name */}
             <div>
-              <label className="text-black block mb-1 text-sm">Name</label>
+              <label className="text-black block mb-1 text-sm sm:text-base">
+                Name
+              </label>
               <input
                 type="text"
                 placeholder="Enter your name"
                 {...register("name")}
-                className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
+                className={`w-full border px-3 py-2 rounded-md text-sm sm:text-base focus:outline-none focus:ring-1 ${
                   errors.name
                     ? "border-red-500 focus:ring-red-500"
                     : "focus:ring-green-500"
                 }`}
               />
               {errors.name && (
-                <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+                <p className="text-red-500 text-xs sm:text-sm mt-1">
+                  {errors.name.message}
+                </p>
               )}
             </div>
 
             {/* Email */}
             <div>
-              <label className="text-black block mb-1 text-sm">Email</label>
+              <label className="text-black block mb-1 text-sm sm:text-base">
+                Email
+              </label>
               <input
                 type="email"
                 placeholder="Enter email"
                 {...register("email")}
-                className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
+                className={`w-full border px-3 py-2 rounded-md text-sm sm:text-base focus:outline-none focus:ring-1 ${
                   errors.email
                     ? "border-red-500 focus:ring-red-500"
                     : "focus:ring-green-500"
                 }`}
               />
               {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+                <p className="text-red-500 text-xs sm:text-sm mt-1">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
             {/* Password */}
             <div>
-              <label className="text-black block mb-1 text-sm">Password</label>
+              <label className="text-black block mb-1 text-sm sm:text-base">
+                Password
+              </label>
               <input
                 type="password"
                 placeholder="Enter password"
                 {...register("password")}
-                className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
+                className={`w-full border px-3 py-2 rounded-md text-sm sm:text-base focus:outline-none focus:ring-1 ${
                   errors.password
                     ? "border-red-500 focus:ring-red-500"
                     : "focus:ring-green-500"
                 }`}
               />
               {errors.password && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-red-500 text-xs sm:text-sm mt-1">
                   {errors.password.message}
                 </p>
               )}
@@ -151,21 +173,21 @@ export default function SignUpPage() {
 
             {/* Confirm Password */}
             <div>
-              <label className="text-black block mb-1 text-sm">
+              <label className="text-black block mb-1 text-sm sm:text-base">
                 Confirm Password
               </label>
               <input
                 type="password"
                 placeholder="Re-enter password"
                 {...register("confirmPassword")}
-                className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
+                className={`w-full border px-3 py-2 rounded-md text-sm sm:text-base focus:outline-none focus:ring-1 ${
                   errors.confirmPassword
                     ? "border-red-500 focus:ring-red-500"
                     : "focus:ring-green-500"
                 }`}
               />
               {errors.confirmPassword && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-red-500 text-xs sm:text-sm mt-1">
                   {errors.confirmPassword.message}
                 </p>
               )}
@@ -173,11 +195,13 @@ export default function SignUpPage() {
 
             {/* Role */}
             <div>
-              <label className="text-black block mb-1 text-sm">Role</label>
+              <label className="text-black block mb-1 text-sm sm:text-base">
+                Role
+              </label>
               <select
                 {...register("role")}
                 defaultValue=""
-                className={`w-full border px-2 py-1 rounded-md text-sm focus:outline-none focus:ring-1 ${
+                className={`w-full border px-3 py-2 rounded-md text-sm sm:text-base focus:outline-none focus:ring-1 ${
                   errors.role
                     ? "border-red-500 focus:ring-red-500"
                     : "focus:ring-green-500"
@@ -190,7 +214,9 @@ export default function SignUpPage() {
                 <option value="admin">Admin</option>
               </select>
               {errors.role && (
-                <p className="text-red-500 text-xs mt-1">{errors.role.message}</p>
+                <p className="text-red-500 text-xs sm:text-sm mt-1">
+                  {errors.role.message}
+                </p>
               )}
             </div>
 
@@ -198,13 +224,14 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50 text-sm"
+              className="w-full bg-blue-600 text-white py-2 sm:py-2.5 rounded-md hover:bg-blue-700 transition disabled:opacity-50 text-sm sm:text-base font-medium"
             >
               {isSubmitting ? "Loading..." : "Signup"}
             </button>
           </form>
 
-          <p className="text-center text-gray-600 mt-2 text-sm">
+          {/* Bottom Link */}
+          <p className="text-center text-gray-600 mt-4 text-sm sm:text-base">
             Already have an account?{" "}
             <Link href="/signin" className="text-blue-600 hover:underline">
               Login
