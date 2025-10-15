@@ -120,7 +120,7 @@ export default function AddEditEventPage() {
           )}
         </div>
         <div className="md:col-span-2 flex gap-4 mt-4">
-          <Button type="submit" className="bg-blue-600 hover:bg-blue-700">Save Event</Button>
+          <Button type="submit" className="bg-blue-600 hover:bg-blue-700">Create Event</Button>
           <Button
             type="button"
             variant="outline"
