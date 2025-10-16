@@ -1,74 +1,147 @@
 "use client";
-import React, { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { toast } from "react-hot-toast";
-export default function AddEditEventPage() {
-  const [eventData, setEventData] = useState({
+
+import React, { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import API from "@/services/api";
+import toast, { Toaster } from "react-hot-toast";
+interface EventData {
+  name: string;
+  venue: string;
+  date: string;
+  time: string;
+  capacity: string;
+  image: File | null;
+}
+const AddEditEvent: React.FC = () => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const id = searchParams.get("id"); 
+  const [eventData, setEventData] = useState<EventData>({
     name: "",
     venue: "",
     date: "",
     time: "",
     capacity: "",
-    image: null as File | null,
+    image: null,
   });
+  useEffect(() => {
+    if (id) {
+      API.get<EventData>(`/event/${id}`)
+        .then((res) => {
+          setEventData({
+            name: res.data.name,
+            venue: res.data.venue,
+            date: res.data.date,
+            time: res.data.time,
+            capacity: res.data.capacity,
+            image: null,
+          });
+        })
+        .catch(() => toast.error("Failed to load event"));
+    }
+  }, [id]);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, files } = e.target;
-    if (name === "image" && files) {
-      setEventData({ ...eventData, image: files[0] });
-    } else {
-      setEventData({ ...eventData, [name]: value });
-    }
+    const { name, value } = e.target;
+    setEventData((prev) => ({ ...prev, [name]: value }));
   };
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setEventData((prev) => ({ ...prev, image: file }));
+  };
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!eventData.name || !eventData.venue || !eventData.date || !eventData.time || !eventData.capacity) {
-      toast.error("Please fill all required fields");
-      return;
+    const formData = new FormData();
+    formData.append("name", eventData.name);
+    formData.append("venue", eventData.venue);
+    formData.append("date", eventData.date);
+    formData.append("time", eventData.time);
+    formData.append("capacity", eventData.capacity);
+    if (eventData.image) formData.append("image", eventData.image);
+    try {
+      if (id) {
+        await API.put(`/event/${id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        toast.success("Event updated successfully!");
+      } else {
+        await API.post("/create-event", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        toast.success("Event created successfully!");
+      }
+      setTimeout(() => router.push("/event/eventlist"), 1500);
+    } catch (err: any) {
+      toast.error("Error while saving event");
+      console.error(err);
     }
-    console.log("Event data submitted:", eventData);
-    toast.success("Event saved successfully!");
-    setEventData({ name: "", venue: "", date: "", time: "", capacity: "", image: null });
   };
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Add / Edit Event</h1>
-      <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit}>
-        <div>
-          <label className="block font-medium mb-1">Event Name *</label>
-          <Input name="name" value={eventData.name} onChange={handleChange} placeholder="Enter event name" />
+    <div className="max-w-lg mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+      <Toaster />
+      <h2 className="text-2xl font-semibold mb-4 text-center">
+        {id ? "Edit Event" : "Add New Event"}
+      </h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          name="name"
+          placeholder="Event Name"
+          value={eventData.name}
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
+          required
+        />
+        <input
+          type="text"
+          name="venue"
+          placeholder="Venue"
+          value={eventData.venue}
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
+          required
+        />
+        <div className="flex gap-2">
+          <input
+            type="date"
+            name="date"
+            value={eventData.date}
+            onChange={handleChange}
+            className="w-1/2 border p-2 rounded"
+            required
+          />
+          <input
+            type="time"
+            name="time"
+            value={eventData.time}
+            onChange={handleChange}
+            className="w-1/2 border p-2 rounded"
+            required
+          />
         </div>
-        <div>
-          <label className="block font-medium mb-1">Venue *</label>
-          <Input name="venue" value={eventData.venue} onChange={handleChange} placeholder="Enter venue"/>
-        </div>
-        <div>
-          <label className="block font-medium mb-1">Date *</label>
-          <Input type="date" name="date" value={eventData.date} onChange={handleChange} />
-        </div>
-        <div>
-          <label className="block font-medium mb-1">Time *</label>
-          <Input type="time"name="time" value={eventData.time} onChange={handleChange}/>
-        </div>
-        <div>
-          <label className="block font-medium mb-1">Capacity *</label>
-          <Input type="number" name="capacity"value={eventData.capacity} onChange={handleChange} placeholder="Enter number of attendees" />
-        </div>
-        <div>
-          <label className="block font-medium mb-1">Upload Image</label>
-          <Input type="file" name="image"onChange={handleChange} accept="image/*"/>
-          {eventData.image && (
-            <p className="mt-2 text-sm text-gray-500">{eventData.image.name}</p>
-          )}
-        </div>
-        <div className="md:col-span-2 flex gap-4 mt-4">
-          <Button type="submit" className="bg-blue-600 hover:bg-blue-700">Create Event</Button>
-          <Button
-            type="button" variant="outline" onClick={() => setEventData({ name: "", venue: "", date: "", time: "", capacity: "", image: null })}>
-            Cancel
-          </Button>
-        </div>
+        <input
+          type="number"
+          name="capacity"
+          placeholder="Capacity"
+          value={eventData.capacity}
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
+          required
+        />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="w-full border p-2 rounded"
+        />
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+        >
+          {id ? "Update Event" : "Create Event"}
+        </button>
       </form>
     </div>
   );
-}
+};
+
+export default AddEditEvent;

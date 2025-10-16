@@ -1,92 +1,88 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import API from "@/services/api";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import toast from "react-hot-toast";
-
-interface Event {
-  id: string;
-  name: string;
-  event_date: string;
-  status: string;
-}
-
-export default function EventListPage() {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [filters, setFilters] = useState({
-    name: "",
-    date: "",
-    status: "",
-  });
-  const [loading, setLoading] = useState(false);
+const EventList = () => {
+  const [events, setEvents] = useState<any[]>([]);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
   const fetchEvents = async () => {
-    setLoading(true);
     try {
-      const { name, date, status } = filters;
-      const res = await API.get<Event[]>("/events", {
-        params: {
-          name: name || undefined,
-          date: date || undefined,
-          status: status || undefined,
-        },
-      });
-      setEvents(res.data ?? []);
-    } catch (err) {
-      console.error("Error fetching events:", err);
-      toast.error("Failed to load events");
-    } finally {
-      setLoading(false);
+      const res = await API.get("/events");
+      setEvents(res.data as Event[]);
+    } catch (error) {
+      console.error("Error fetching events:", error);
     }
   };
   useEffect(() => {
     fetchEvents();
   }, []);
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
+  const filteredEvents = events.filter((event) => {
+    const matchesSearch = event.name
+      .toLowerCase()
+      .includes(search.toLowerCase());
+    const matchesFilter =
+      filter === "all" || event.status?.toLowerCase() === filter.toLowerCase();
+    return matchesSearch && matchesFilter;
+  });
   return (
-    <div className="px-8 py-10">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Event List (Admin)</h1>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <Input placeholder="Search by event name" name="name" value={filters.name} onChange={handleChange}/>
-        <Input type="date" name="date" value={filters.date} onChange={handleChange}/>
-        <select name="status" value={filters.status} onChange={handleChange} className="border rounded-md p-2 bg-white text-gray-800">
-          <option value="">All Status</option>
-          <option value="upcoming">Upcoming</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-        <Button onClick={fetchEvents} className="bg-blue-600 text-white">Apply Filters </Button>
-      </div>
-      {loading ? (
-        <p>Loading events...</p>
-      ) : events.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.map((event) => (
-            <Card key={event.id} className="shadow-md rounded-xl">
-              <CardContent className="p-4">
-                <h2 className="text-lg font-semibold">{event.name}</h2>
-                <p className="text-gray-600 text-sm mt-1"> Date: {event.event_date}</p>
-                <p className="text-gray-600 text-sm mt-1">
-                  Status:{" "}
-                  <span className={`font-medium ${ event.status === "upcoming"? "text-green-600": event.status === "completed"? "text-blue-600": "text-red-600" }`} >
-                    {event.status}
-                  </span>
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+    <div className="max-w-5xl mx-auto mt-10 p-6 border rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-4 text-center">Event List</h2>
+      <div className="flex justify-between mb-4">
+        <Link href="/events"className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"> Add Event</Link>
+        <div className="flex gap-2">
+        <input type="text"placeholder="Search event..."value={search}onChange={(e) => setSearch(e.target.value)} className="border p-2 rounded"/>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="border p-2 rounded"
+          >
+            <option value="all">All</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
         </div>
-      ) : (
-        <p>No events found.</p>
-      )}
+      </div>
+      <table className="w-full border text-left">
+        <thead className="bg-gray-200">
+          <tr>
+            <th className="p-2 border">Event Name</th>
+            <th className="p-2 border">Date</th>
+            <th className="p-2 border">Status</th>
+            <th className="p-2 border">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredEvents.length > 0 ? (
+            filteredEvents.map((event) => (
+              <tr key={event.id} className="border-b hover:bg-gray-50">
+                <td className="p-2 border">{event.name}</td>
+                <td className="p-2 border">{event.date}</td>
+                <td className="p-2 border capitalize">
+                  {event.status || "N/A"}
+                </td>
+                <td className="p-2 border">
+                  <Link
+                    href={`/events?id=${event.id}`}
+                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                  >
+                    Edit
+                  </Link>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={4} className="text-center p-4">
+                No events found
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
-}
+};
+
+export default EventList;
