@@ -32,7 +32,7 @@ const AddEditEvent: React.FC = () => {
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     if (id) {
-      API.get<EventResponse>(`/event/${id}`)
+      API.get<EventResponse>(`/events/${id}`)
         .then((res) => {
           const data = res.data;
           setEventData({
