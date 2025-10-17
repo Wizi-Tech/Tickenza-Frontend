@@ -12,7 +12,6 @@ interface EventResponse {
   capacity: string;
   image_url?: string;
 }
-
 interface EventData extends EventResponse {
   image: File | null;
 }
@@ -30,7 +29,6 @@ const AddEditEvent: React.FC = () => {
     image: null,
     image_url: "",
   });
-
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     if (id) {
@@ -54,7 +52,6 @@ const AddEditEvent: React.FC = () => {
     const { name, value } = e.target;
     setEventData((prev) => ({ ...prev, [name]: value }));
   };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setEventData((prev) => ({ ...prev, image: file }));
@@ -84,15 +81,13 @@ const AddEditEvent: React.FC = () => {
         capacity: eventData.capacity,
         image_url: imageUrl,
       };
-
       if (id) {
-        await API.put(`/event/${id}`, payload);
+        await API.put(`/event/${id}`, payload); 
         toast.success("Event updated successfully!");
       } else {
-        await API.post("/create-event", payload);
+        await API.post("/create-event", payload); 
         toast.success("Event created successfully!");
       }
-
       setTimeout(() => {
         setLoading(false);
         router.push("/event/eventlist");
@@ -103,7 +98,6 @@ const AddEditEvent: React.FC = () => {
       toast.error("Error while saving event");
     }
   };
-
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50">
       <Toaster />
