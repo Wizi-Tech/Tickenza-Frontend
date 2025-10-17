@@ -90,7 +90,7 @@ const AddEditEvent: React.FC = () => {
       }
       setTimeout(() => {
         setLoading(false);
-        router.push("/event/eventlist");
+        router.push("/events/eventlist");
       }, 1500);
     } catch (err) {
       console.error(err);
