@@ -82,7 +82,7 @@ const AddEditEvent: React.FC = () => {
         image_url: imageUrl,
       };
       if (id) {
-        await API.put(`/event/${id}`, payload); 
+        await API.put(`/events/${id}`, payload); 
         toast.success("Event updated successfully!");
       } else {
         await API.post("/create-event", payload); 
@@ -95,7 +95,7 @@ const AddEditEvent: React.FC = () => {
     } catch (err) {
       console.error(err);
       setLoading(false);
-      toast.error("create event failed");
+      toast.error("failed");
     }
   };
   return (
