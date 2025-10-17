@@ -64,8 +64,17 @@ export default function SignUpPage() {
         router.push("/signin");
       }
     } catch (err: any) {
-      const errorMessage =
+      let errorMessage =
         err.response?.data?.message || "Signup failed! Try again.";
+        if (err.response) {
+      errorMessage =
+        err.response.data?.message ||
+        err.response.data?.error ||
+        errorMessage;
+      if (err.response.status === 409) {
+        errorMessage = "User already exists!";
+      }
+    }
       toast.error(errorMessage);
     }
   };
