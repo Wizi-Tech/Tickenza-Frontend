@@ -13,17 +13,17 @@ import { AuthService } from "@/services/authService";
 type AuthResponse = {
   name: string;
   email: string;
-  token: string;
+  role: string;
+  access_token: string; 
+  token_type: string;
+  message: string;
 };
 
 const signinSchema = z.object({
   email: z
     .string()
     .min(1, "Email is required")
-    .regex(
-      /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|in)$/i,
-      "Invalid email format"
-    ),
+    .regex(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|in)$/i, "Invalid email format"),
   password: z
     .string()
     .min(5, "Password must be at least 5 characters")
@@ -40,39 +40,28 @@ export default function SigninPage() {
   const router = useRouter();
   const setUser = useAuthStore((state) => state.setUser);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<SigninForm>({
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SigninForm>({
     resolver: zodResolver(signinSchema),
   });
 
   const onSubmit = async (data: SigninForm) => {
     try {
       const res = await AuthService.signin(data);
-
       if (res.status === 200) {
         const user = res.data as AuthResponse;
-
-       
-        if (typeof window !== "undefined") {
-          localStorage.setItem("token", user.token);
-          console.log("Token saved:", localStorage.getItem("token"));
-        }
-
+        localStorage.setItem("token", user.access_token);
+        console.log("Token saved:", localStorage.getItem("token"));
         setUser({
           name: user.name,
           username: user.email,
-          token: user.token,
+          token: user.access_token,
         });
 
         toast.success("Login Successful");
         router.push("/");
       }
     } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.message || "Login failed! Try again.";
+      const errorMessage = err.response?.data?.message || "Login failed! Try again.";
       toast.error(errorMessage);
     }
   };
@@ -89,20 +78,15 @@ export default function SigninPage() {
           <button
             onClick={() => router.push("/")}
             className="absolute top-3 right-3 text-gray-500 hover:text-black text-lg font-bold"
-          >
-            X
-          </button>
+          >X</button>
+
           <div className="flex justify-center mb-4 mt-2">
-            <img
-              src="/Tickenza.png"
-              alt="Tickenza Logo"
-              className="h-12 w-12 object-contain"
-            />
+            <img src="/Tickenza.png" alt="Tickenza Logo" className="h-12 w-12 object-contain" />
           </div>
+
           <h2 className="text-lg font-bold text-center mb-1">Welcome Back</h2>
-          <p className="text-gray-500 text-center mb-4 text-sm">
-            Please login to continue
-          </p>
+          <p className="text-gray-500 text-center mb-4 text-sm">Please login to continue</p>
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <div>
               <label className="text-black block mb-1 text-m">Email</label>
@@ -111,17 +95,12 @@ export default function SigninPage() {
                 placeholder="Enter Email"
                 {...register("email")}
                 className={`w-full border px-2 py-1.5 rounded-md text-sm focus:outline-none focus:ring-1 ${
-                  errors.email
-                    ? "border-red-500 focus:ring-red-500"
-                    : "focus:ring-green-500"
+                  errors.email ? "border-red-500 focus:ring-red-500" : "focus:ring-green-500"
                 }`}
               />
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.email.message}
-                </p>
-              )}
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
             </div>
+
             <div>
               <label className="text-black block mb-1 text-s">Password</label>
               <input
@@ -129,25 +108,16 @@ export default function SigninPage() {
                 placeholder="Enter Password"
                 {...register("password")}
                 className={`w-full border px-2 py-1.5 rounded-md text-sm focus:outline-none focus:ring-1 ${
-                  errors.password
-                    ? "border-red-500 focus:ring-red-500"
-                    : "focus:ring-green-500"
+                  errors.password ? "border-red-500 focus:ring-red-500" : "focus:ring-green-500"
                 }`}
               />
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.password.message}
-                </p>
-              )}
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
             </div>
+
             <div className="text-left">
-              <Link
-                href="/forgot-password"
-                className="text-blue-600 text-s hover:underline"
-              >
-                Forgot Password
-              </Link>
+              <Link href="/forgot-password" className="text-blue-600 text-s hover:underline">Forgot Password</Link>
             </div>
+
             <button
               type="submit"
               disabled={isSubmitting}
@@ -156,11 +126,10 @@ export default function SigninPage() {
               {isSubmitting ? "Loading..." : "Login"}
             </button>
           </form>
+
           <p className="text-center text-gray-600 mt-3 text-s">
             Don't have an account?{" "}
-            <Link href="/signup" className="text-blue-600 hover:underline">
-              Signup
-            </Link>
+            <Link href="/signup" className="text-blue-600 hover:underline">Signup</Link>
           </p>
         </div>
       </div>

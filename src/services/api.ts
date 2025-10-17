@@ -4,6 +4,7 @@ const API = axios.create({
   baseURL: "https://tickenza-backend.onrender.com",
   withCredentials: true, 
 });
+
 API.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token"); 
@@ -15,6 +16,7 @@ API.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
+
 API.interceptors.response.use(
   (response) => response,
   (error) => {
