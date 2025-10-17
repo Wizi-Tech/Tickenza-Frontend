@@ -15,24 +15,31 @@ type AuthResponse = {
   email: string;
   token: string;
 };
+
 const signinSchema = z.object({
-   email: z
-        .string()
-        .min(1, "Email is required")
-        .regex(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|in)$/i, "Invalid email format"),
-      password: z
-        .string()
-        .min(5, "Password must be at least 5 characters")
-        .regex(/[A-Z]/, "At least one uppercase letter")
-        .regex(/[a-z]/, "At least one lowercase letter")
-        .regex(/[0-9]/, "At least one number")
-        .regex(/[@#$%&*!?^]/, "At least one special character (@, #, $, etc.)")
-        .refine((val) => !/\s/.test(val), "Password must not contain spaces"),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .regex(
+      /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|in)$/i,
+      "Invalid email format"
+    ),
+  password: z
+    .string()
+    .min(5, "Password must be at least 5 characters")
+    .regex(/[A-Z]/, "At least one uppercase letter")
+    .regex(/[a-z]/, "At least one lowercase letter")
+    .regex(/[0-9]/, "At least one number")
+    .regex(/[@#$%&*!?^]/, "At least one special character (@, #, $, etc.)")
+    .refine((val) => !/\s/.test(val), "Password must not contain spaces"),
 });
+
 type SigninForm = z.infer<typeof signinSchema>;
+
 export default function SigninPage() {
   const router = useRouter();
   const setUser = useAuthStore((state) => state.setUser);
+
   const {
     register,
     handleSubmit,
@@ -40,18 +47,26 @@ export default function SigninPage() {
   } = useForm<SigninForm>({
     resolver: zodResolver(signinSchema),
   });
+
   const onSubmit = async (data: SigninForm) => {
     try {
       const res = await AuthService.signin(data);
+
       if (res.status === 200) {
         const user = res.data as AuthResponse;
-        localStorage.setItem("token", user.token);
-        console.log("Token saved:", localStorage.getItem("token"));
+
+       
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", user.token);
+          console.log("Token saved:", localStorage.getItem("token"));
+        }
+
         setUser({
           name: user.name,
           username: user.email,
           token: user.token,
         });
+
         toast.success("Login Successful");
         router.push("/");
       }
@@ -61,6 +76,7 @@ export default function SigninPage() {
       toast.error(errorMessage);
     }
   };
+
   return (
     <>
       <Toaster position="top-center" />
