@@ -45,15 +45,12 @@ export default function SigninPage() {
       const res = await AuthService.signin(data);
       if (res.status === 200) {
         const user = res.data as AuthResponse;
+        localStorage.setItem("token", user.token);
         setUser({
           name: user.name,
           username: user.email,
           token: user.token,
         });
-
-        if (typeof window !== "undefined") {
-    localStorage.setItem("token", user.token); 
-  }
         toast.success("Login Successful");
         router.push("/");
       }
