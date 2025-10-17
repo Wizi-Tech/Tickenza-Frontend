@@ -51,7 +51,9 @@ export default function SigninPage() {
           token: user.token,
         });
 
-        localStorage.setItem("token", user.token);
+        if (typeof window !== "undefined") {
+    localStorage.setItem("token", user.token); 
+  }
         toast.success("Login Successful");
         router.push("/");
       }

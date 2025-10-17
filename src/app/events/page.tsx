@@ -95,7 +95,7 @@ const AddEditEvent: React.FC = () => {
     } catch (err) {
       console.error(err);
       setLoading(false);
-      toast.error("Error while saving event");
+      toast.error("create event failed");
     }
   };
   return (
