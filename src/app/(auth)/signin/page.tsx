@@ -46,6 +46,7 @@ export default function SigninPage() {
       if (res.status === 200) {
         const user = res.data as AuthResponse;
         localStorage.setItem("token", user.token);
+        console.log("Token saved:", localStorage.getItem("token"));
         setUser({
           name: user.name,
           username: user.email,
