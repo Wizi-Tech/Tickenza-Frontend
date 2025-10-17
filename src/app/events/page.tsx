@@ -4,12 +4,15 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import API from "@/services/api";
 import toast, { Toaster } from "react-hot-toast";
-interface EventData {
+interface EventResponse {
   name: string;
   venue: string;
   date: string;
   time: string;
   capacity: string;
+  image_url?: string;
+}
+interface EventData extends EventResponse {
   image: File | null;
 }
 const AddEditEvent: React.FC = () => {
@@ -23,20 +26,23 @@ const AddEditEvent: React.FC = () => {
     time: "",
     capacity: "",
     image: null,
+    image_url: "",
   });
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     if (id) {
-      API.get<EventData>(`/event/${id}`)
+      API.get<EventResponse>(`/event/${id}`)
         .then((res) => {
+          const data = res.data;
           setEventData({
-            name: res.data.name,
-            venue: res.data.venue,
-            date: res.data.date,
-            time: res.data.time,
-            capacity: res.data.capacity,
+            name: data.name,
+            venue: data.venue,
+            date: data.date,
+            time: data.time,
+            capacity: data.capacity,
             image: null,
+            image_url: data.image_url || "",
           });
           setShowModal(true);
         })
@@ -53,24 +59,35 @@ const AddEditEvent: React.FC = () => {
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); 
-    const formData = new FormData();
-    formData.append("name", eventData.name);
-    formData.append("venue", eventData.venue);
-    formData.append("date", eventData.date);
-    formData.append("time", eventData.time);
-    formData.append("capacity", eventData.capacity);
-    if (eventData.image) formData.append("image", eventData.image);
+    setLoading(true);
     try {
+      let imageUrl = eventData.image_url || "";
+      if (eventData.image) {
+        const imgFormData = new FormData();
+        imgFormData.append("file", eventData.image);
+        const uploadRes = await API.post<{ image_url: string }>(
+          "/upload-image",
+          imgFormData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+
+        imageUrl = uploadRes.data.image_url;
+      }
+      const payload = {
+        name: eventData.name,
+        venue: eventData.venue,
+        date: eventData.date,
+        time: eventData.time,
+        capacity: eventData.capacity,
+        image_url: imageUrl,
+      };
       if (id) {
-        await API.put(`/event/${id}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await API.put(`/event/${id}`, payload);
         toast.success("Event updated successfully!");
       } else {
-        await API.post("/create-event", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await API.post("/create-event", payload);
         toast.success("Event created successfully!");
       }
       setTimeout(() => {
@@ -78,10 +95,10 @@ const AddEditEvent: React.FC = () => {
         setShowModal(false);
         router.push("/event/eventlist");
       }, 1500);
-    } catch (err: any) {
+    } catch (err) {
+      console.error(err);
       setLoading(false);
       toast.error("Error while saving event");
-      console.error(err);
     }
   };
   return (
@@ -89,7 +106,12 @@ const AddEditEvent: React.FC = () => {
       <Toaster />
       {!showModal && (
         <div className="flex justify-center mt-10">
-        <button onClick={() => setShowModal(true)}className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"> Add New Event</button>
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+          >
+            Add New Event
+          </button>
         </div>
       )}
       {showModal && (
@@ -105,21 +127,78 @@ const AddEditEvent: React.FC = () => {
               {id ? "Edit Event" : "Add New Event"}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
-            <input type="text" name="name"placeholder="Event Name"value={eventData.name}onChange={handleChange} className="w-full border p-2 rounded"required />
-            <input type="text" name="venue"placeholder="Venue"value={eventData.venue}onChange={handleChange}className="w-full border p-2 rounded"required/>
-            <div className="flex gap-2">
-            <input type="date"name="date"value={eventData.date}onChange={handleChange}className="w-1/2 border p-2 rounded" required />
-            <input type="time"name="time" value={eventData.time} onChange={handleChange} className="w-1/2 border p-2 rounded" required/>
-            </div>
-            <input type="number"name="capacity" placeholder="Capacity" value={eventData.capacity}onChange={handleChange}className="w-full border p-2 rounded" required/>
-            <input type="file"accept="image/*"onChange={handleFileChange} className="w-full border p-2 rounded" />
-            <button type="submit" disabled={loading} className={`w-full text-white p-2 rounded transition ${
+              <input
+                type="text"
+                name="name"
+                placeholder="Event Name"
+                value={eventData.name}
+                onChange={handleChange}
+                className="w-full border p-2 rounded"
+                required
+              />
+              <input
+                type="text"
+                name="venue"
+                placeholder="Venue"
+                value={eventData.venue}
+                onChange={handleChange}
+                className="w-full border p-2 rounded"
+                required
+              />
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  name="date"
+                  value={eventData.date}
+                  onChange={handleChange}
+                  className="w-1/2 border p-2 rounded"
+                  required
+                />
+                <input
+                  type="time"
+                  name="time"
+                  value={eventData.time}
+                  onChange={handleChange}
+                  className="w-1/2 border p-2 rounded"
+                  required
+                />
+              </div>
+              <input
+                type="number"
+                name="capacity"
+                placeholder="Capacity"
+                value={eventData.capacity}
+                onChange={handleChange}
+                className="w-full border p-2 rounded"
+                required
+              />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="w-full border p-2 rounded"
+              />
+              {eventData.image_url && !eventData.image && (
+                <div className="mt-2">
+                  <img
+                    src={eventData.image_url}
+                    alt="Event"
+                    className="rounded w-full h-40 object-cover"
+                  />
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full text-white p-2 rounded transition ${
                   loading
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-blue-600 hover:bg-blue-700"
                 }`}
               >
-                {loading ? "Loading...": id
+                {loading
+                  ? "Loading..."
+                  : id
                   ? "Update Event"
                   : "Create Event"}
               </button>
