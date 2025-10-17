@@ -50,6 +50,8 @@ export default function SigninPage() {
           username: user.email,
           token: user.token,
         });
+
+        localStorage.setItem("token", user.token);
         toast.success("Login Successful");
         router.push("/");
       }
