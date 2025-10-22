@@ -21,7 +21,7 @@ interface EventData extends EventResponse {
   image: File | null;
 }
 
-const MAX_FILE_SIZE = 500 * 1024; // 500KB
+const MAX_FILE_SIZE = 500 * 1024; 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png"];
 
 const eventSchema = z.object({
@@ -34,18 +34,16 @@ const eventSchema = z.object({
     .any()
     .refine(
       (file) => {
-        if (!file) return true; // optional
+        if (!file) return true; 
         return ACCEPTED_IMAGE_TYPES.includes(file.type);
       },
-      { message: "Only PNG/JPEG format allowed" }
-    )
+      "Only PNG/JPEG format allowed" )
     .refine(
       (file) => {
         if (!file) return true;
         return file.size <= MAX_FILE_SIZE;
-      },
-      { message: "File must be less than or equal to 500KB" }
-    )
+      },"File must be ≤ 500KB")
+      
     .nullable()
     .optional(),
 });
