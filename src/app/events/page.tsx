@@ -25,7 +25,7 @@ const eventSchema = z.object({
   date: z.string().min(1, "Date is required"),
   time: z.string().min(1, "Time is required"),
   capacity: z.string().min(1, "Capacity is required"),
-  image: z.any().nullable().optional(),
+  image: z.string().min(1, "Image is required"),
 });
 
 type EventFormInputs = z.infer<typeof eventSchema>;
