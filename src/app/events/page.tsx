@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import API from "@/services/api";
 import toast, { Toaster } from "react-hot-toast";
+
 interface EventResponse {
   name: string;
   venue: string;
@@ -12,9 +13,11 @@ interface EventResponse {
   capacity: string;
   image_url?: string;
 }
+
 interface EventData extends EventResponse {
   image: File | null;
 }
+
 const AddEditEvent: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -29,7 +32,9 @@ const AddEditEvent: React.FC = () => {
     image: null,
     image_url: "",
   });
+
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (id) {
       API.get<EventResponse>(`/events/${id}`)
@@ -48,19 +53,24 @@ const AddEditEvent: React.FC = () => {
         .catch(() => toast.error("Failed to load event"));
     }
   }, [id]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEventData((prev) => ({ ...prev, [name]: value }));
   };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setEventData((prev) => ({ ...prev, image: file }));
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       let imageUrl = eventData.image_url || "";
+
       if (eventData.image) {
         const imgFormData = new FormData();
         imgFormData.append("file", eventData.image);
@@ -73,6 +83,7 @@ const AddEditEvent: React.FC = () => {
 
         imageUrl = uploadRes.data.image_url;
       }
+
       const payload = {
         name: eventData.name,
         venue: eventData.venue,
@@ -81,23 +92,32 @@ const AddEditEvent: React.FC = () => {
         capacity: eventData.capacity,
         image_url: imageUrl,
       };
+
       if (id) {
-        await API.put(`/events/${id}`, payload); 
+        await API.put(`/events/${id}`, payload);
         toast.success("Event updated successfully!");
       } else {
-        await API.post("/create-event", payload); 
+        await API.post("/create-event", payload);
         toast.success("Event created successfully!");
       }
+
       setTimeout(() => {
         setLoading(false);
         router.push("/events/eventlist");
       }, 1500);
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = error as any; 
       console.error(err);
       setLoading(false);
-      toast.error("failed");
+
+      if (err.response?.status === 403) {
+        toast.error(err.response?.data?.detail || "Only admins can create events");
+      } else {
+        toast.error("Failed");
+      }
     }
   };
+
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50">
       <Toaster />
