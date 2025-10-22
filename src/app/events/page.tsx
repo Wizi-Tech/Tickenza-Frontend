@@ -21,8 +21,36 @@ interface EventData extends EventResponse {
   image: File | null;
 }
 
-const MAX_FILE_SIZE = 500 * 1024;
+const MAX_FILE_SIZE = 500 * 1024; 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png"];
+
+const eventSchema = z.object({
+  name: z.string().min(1, "Event name is required"),
+  venue: z.string().min(1, "Venue is required"),
+  date: z.string().min(1, "Date is required"),
+  time: z.string().min(1, "Time is required"),
+  capacity: z.string().min(1, "Capacity is required"),
+  image: z
+    .any()
+    .refine(
+      (file) => {
+        if (!file) return true;
+        return ACCEPTED_IMAGE_TYPES.includes(file.type);
+      },
+      "Only PNG/JPEG format allowed"
+    )
+    .refine(
+      (file) => {
+        if (!file) return true;
+        return file.size <= MAX_FILE_SIZE;
+      },
+      "File must be ≤ 500KB"
+    )
+    .nullable()
+    .optional(),
+});
+
+type EventFormInputs = z.infer<typeof eventSchema>;
 
 const AddEditEvent: React.FC = () => {
   const searchParams = useSearchParams();
@@ -40,43 +68,14 @@ const AddEditEvent: React.FC = () => {
     image_url: "",
   });
 
-  const eventSchema = z.object({
-    name: z.string().min(1, "Event name is required"),
-    venue: z.string().min(1, "Venue is required"),
-    date: z.string().min(1, "Date is required"),
-    time: z.string().min(1, "Time is required"),
-    capacity: z.string().min(1, "Capacity is required"),
-    image: z
-      .any()
-      .refine((file) => {
-        if (!id && !file) return false;
-        return true;
-      }, "Image is required")
-      .refine((file) => {
-        if (!file) return true; 
-        return ACCEPTED_IMAGE_TYPES.includes(file.type);
-      }, "Image must be PNG or JPEG format")
-      .refine((file) => {
-        if (!file) return true; 
-        return file.size <= MAX_FILE_SIZE;
-      }, "Image must be 500KB or less")
-      .nullable()
-      .optional(),
-  });
-
-  type EventFormInputs = z.infer<typeof eventSchema>;
-
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
-    watch,
   } = useForm<EventFormInputs>({
     resolver: zodResolver(eventSchema),
   });
-
-  const watchImage = watch("image");
 
   useEffect(() => {
     if (id) {
@@ -147,7 +146,12 @@ const AddEditEvent: React.FC = () => {
       const err = error as any;
       console.error(err);
       setLoading(false);
-      toast.error("Failed to submit event");
+
+      if (err.response?.status === 403) {
+        toast.error(err.response?.data?.detail || "Only admins can create events");
+      } else {
+        toast.error("Failed");
+      }
     }
   };
 
@@ -211,16 +215,7 @@ const AddEditEvent: React.FC = () => {
             <p className="text-red-500 text-sm">{errors.image?.message?.toString()}</p>
           </div>
 
-          {/* Image preview */}
-          {watchImage && watchImage instanceof File ? (
-            <div className="mt-2">
-              <img
-                src={URL.createObjectURL(watchImage)}
-                alt="Preview"
-                className="rounded w-full h-40 object-cover"
-              />
-            </div>
-          ) : eventData.image_url ? (
+          {eventData.image_url && !eventData.image && (
             <div className="mt-2">
               <img
                 src={eventData.image_url}
@@ -228,7 +223,7 @@ const AddEditEvent: React.FC = () => {
                 className="rounded w-full h-40 object-cover"
               />
             </div>
-          ) : null}
+          )}
 
           <button
             type="submit"
