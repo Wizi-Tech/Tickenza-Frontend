@@ -16,19 +16,42 @@ interface EventResponse {
   capacity: string;
   image_url?: string;
 }
+
 interface EventData extends EventResponse {
   image: File | null;
 }
+
+const MAX_FILE_SIZE = 500 * 1024; // 500KB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png"];
+
 const eventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   venue: z.string().min(1, "Venue is required"),
   date: z.string().min(1, "Date is required"),
   time: z.string().min(1, "Time is required"),
   capacity: z.string().min(1, "Capacity is required"),
-  image: z.string().min(1, "Image is required"),
+  image: z
+    .any()
+    .refine(
+      (file) => {
+        if (!file) return true; // optional
+        return ACCEPTED_IMAGE_TYPES.includes(file.type);
+      },
+      { message: "Only PNG/JPEG format allowed" }
+    )
+    .refine(
+      (file) => {
+        if (!file) return true;
+        return file.size <= MAX_FILE_SIZE;
+      },
+      { message: "File must be less than or equal to 500KB" }
+    )
+    .nullable()
+    .optional(),
 });
 
 type EventFormInputs = z.infer<typeof eventSchema>;
+
 const AddEditEvent: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -44,6 +67,7 @@ const AddEditEvent: React.FC = () => {
     image: null,
     image_url: "",
   });
+
   const {
     register,
     handleSubmit,
@@ -67,6 +91,7 @@ const AddEditEvent: React.FC = () => {
             image: null,
             image_url: data.image_url || "",
           });
+
           setValue("name", data.name);
           setValue("venue", data.venue);
           setValue("date", data.date);
@@ -77,36 +102,15 @@ const AddEditEvent: React.FC = () => {
     }
   }, [id, setValue]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-
-    if (file) {
-      const fileSizeKB = file.size / 1024;
-      const validTypes = ["image/png", "image/jpeg"];
-
-      if (!validTypes.includes(file.type)) {
-        toast.error("Only PNG/JPEG format allowed");
-        return;
-      }
-
-      if (fileSizeKB > 500) {
-        toast.error("File must be less than or equal to 500KB");
-        return;
-      }
-    }
-
-    setEventData((prev) => ({ ...prev, image: file }));
-  };
-
   const onSubmit = async (data: EventFormInputs) => {
     setLoading(true);
 
     try {
       let imageUrl = eventData.image_url || "";
 
-      if (eventData.image) {
+      if (data.image) {
         const imgFormData = new FormData();
-        imgFormData.append("file", eventData.image);
+        imgFormData.append("file", data.image);
 
         const uploadRes = await API.post<{ image_url: string }>(
           "/upload-image",
@@ -167,7 +171,7 @@ const AddEditEvent: React.FC = () => {
               {...register("name")}
               className="w-full border p-2 rounded"
             />
-            {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+            <p className="text-red-500 text-sm">{errors.name?.message?.toString()}</p>
           </div>
 
           <div>
@@ -177,17 +181,17 @@ const AddEditEvent: React.FC = () => {
               {...register("venue")}
               className="w-full border p-2 rounded"
             />
-            {errors.venue && <p className="text-red-500 text-sm">{errors.venue.message}</p>}
+            <p className="text-red-500 text-sm">{errors.venue?.message?.toString()}</p>
           </div>
 
           <div className="flex gap-2">
             <div className="w-1/2">
               <input type="date" {...register("date")} className="w-full border p-2 rounded" />
-              {errors.date && <p className="text-red-500 text-sm">{errors.date.message}</p>}
+              <p className="text-red-500 text-sm">{errors.date?.message?.toString()}</p>
             </div>
             <div className="w-1/2">
               <input type="time" {...register("time")} className="w-full border p-2 rounded" />
-              {errors.time && <p className="text-red-500 text-sm">{errors.time.message}</p>}
+              <p className="text-red-500 text-sm">{errors.time?.message?.toString()}</p>
             </div>
           </div>
 
@@ -198,15 +202,18 @@ const AddEditEvent: React.FC = () => {
               {...register("capacity")}
               className="w-full border p-2 rounded"
             />
-            {errors.capacity && <p className="text-red-500 text-sm">{errors.capacity.message}</p>}
+            <p className="text-red-500 text-sm">{errors.capacity?.message?.toString()}</p>
           </div>
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="w-full border p-2 rounded"
-          />
+          <div>
+            <input
+              type="file"
+              accept="image/png, image/jpeg"
+              {...register("image")}
+              className="w-full border p-2 rounded"
+            />
+            <p className="text-red-500 text-sm">{errors.image?.message?.toString()}</p>
+          </div>
 
           {eventData.image_url && !eventData.image && (
             <div className="mt-2">
@@ -222,16 +229,10 @@ const AddEditEvent: React.FC = () => {
             type="submit"
             disabled={loading}
             className={`w-full text-white p-2 rounded transition ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
+              loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
-            {loading
-              ? "Loading..."
-              : id
-              ? "Update Event"
-              : "Create Event"}
+            {loading ? "Loading..." : id ? "Update Event" : "Create Event"}
           </button>
         </form>
       </div>
