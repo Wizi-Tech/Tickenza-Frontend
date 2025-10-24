@@ -32,16 +32,6 @@ const EventList = () => {
         <Link href="/events"className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"> Add Event</Link>
         <div className="flex gap-2">
         <input type="text"placeholder="Search event..."value={search}onChange={(e) => setSearch(e.target.value)} className="border p-2 rounded"/>
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="border p-2 rounded"
-          >
-            <option value="all">All</option>
-            <option value="upcoming">Upcoming</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
         </div>
       </div>
       <table className="w-full border text-left">
