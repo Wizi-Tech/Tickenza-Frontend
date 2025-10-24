@@ -57,9 +57,9 @@ const EventList = () => {
       <table className="w-full border text-left">
         <thead className="bg-gray-200">
           <tr>
+            <th className="p-2 border">Image</th>
             <th className="p-2 border">Event Name</th>
             <th className="p-2 border">Date</th>
-            <th className="p-2 border">Image</th>
             <th className="p-2 border">Status</th>
             <th className="p-2 border">Actions</th>
           </tr>
