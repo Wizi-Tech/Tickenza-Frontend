@@ -22,7 +22,6 @@ interface EventData extends EventResponse {
 
 const MAX_FILE_SIZE = 500 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png"];
-
 const createEventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   venue: z.string().min(1, "Venue is required"),
@@ -30,11 +29,11 @@ const createEventSchema = z.object({
   time: z.string().min(1, "Time is required"),
   capacity: z.string().min(1, "Capacity is required"),
   image: z
-    .instanceof(File, { message: "Image is required" })
-    .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), "Only PNG/JPEG format allowed")
-    .refine((file) => file.size <= MAX_FILE_SIZE, "File must be ≤ 500KB"),
+    .any()
+    .refine((file) => file instanceof File, "Image is required")
+    .refine((file) => file instanceof File && ACCEPTED_IMAGE_TYPES.includes(file.type), "Only PNG/JPEG format allowed")
+    .refine((file) => file instanceof File && file.size <= MAX_FILE_SIZE, "File must be ≤ 500KB"),
 });
-
 const editEventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   venue: z.string().min(1, "Venue is required"),
@@ -48,7 +47,10 @@ const editEventSchema = z.object({
       (file) => !file || (file instanceof File && ACCEPTED_IMAGE_TYPES.includes(file.type)),
       "Only PNG/JPEG format allowed"
     )
-    .refine((file) => !file || (file instanceof File && file.size <= MAX_FILE_SIZE), "File must be ≤ 500KB"),
+    .refine(
+      (file) => !file || (file instanceof File && file.size <= MAX_FILE_SIZE),
+      "File must be ≤ 500KB"
+    ),
 });
 
 const AddEditEvent: React.FC = () => {
