@@ -28,13 +28,13 @@ const createEventSchema = z.object({
   capacity: z.string().min(1, "Capacity is required"),
   image: z
     .any()
-    .refine((file) => file !== null && file instanceof File, "Image is required")
+    .refine((file) => file instanceof File, "Image is required")
     .refine(
-      (file) => file && ACCEPTED_IMAGE_TYPES.includes(file.type),
+      (file) =>ACCEPTED_IMAGE_TYPES.includes(file.type),
       "Only PNG/JPEG format allowed"
     )
     .refine(
-      (file) => file && file.size <= MAX_FILE_SIZE,
+      (file) => file.size <= MAX_FILE_SIZE,
       "File must be ≤ 500KB"
     ),
 });
@@ -48,11 +48,11 @@ const editEventSchema = z.object({
     .any()
     .nullable()
     .refine(
-      (file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type),
+      (file) => !file || (file instanceof File && ACCEPTED_IMAGE_TYPES.includes(file.type)),
       "Only PNG/JPEG format allowed"
     )
     .refine(
-      (file) => !file || file.size <= MAX_FILE_SIZE,
+      (file) => !file || (file instanceof File && file.size <= MAX_FILE_SIZE),
       "File must be ≤ 500KB"
     ),
 });
