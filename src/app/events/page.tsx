@@ -28,10 +28,12 @@ const createEventSchema = z.object({
   capacity: z.string().min(1, "Capacity is required"),
   image: z
     .any()
-    .refine((files) => files?.length > 0, "Image is required") // must select a file
+    .refine((files) => files?.length > 0, "Image is required")
     .refine((files) => !files || ACCEPTED_IMAGE_TYPES.includes(files[0]?.type), "Only PNG/JPEG format allowed")
     .refine((files) => !files || files[0]?.size <= MAX_FILE_SIZE, "File must be ≤ 500KB"),
 });
+
+
 const editEventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   venue: z.string().min(1, "Venue is required"),
@@ -44,12 +46,14 @@ const editEventSchema = z.object({
     .refine((files) => !files || ACCEPTED_IMAGE_TYPES.includes(files[0]?.type), "Only PNG/JPEG format allowed")
     .refine((files) => !files || files[0]?.size <= MAX_FILE_SIZE, "File must be ≤ 500KB"),
 });
+
 const AddEditEvent: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get("id");
   const isEdit = !!id;
   const schemaToUse = isEdit ? editEventSchema : createEventSchema;
+
   const [loading, setLoading] = useState(false);
   const [eventData, setEventData] = useState<EventData>({
     name: "",
@@ -60,10 +64,12 @@ const AddEditEvent: React.FC = () => {
     image: null,
     image_url: "",
   });
+
   type EventFormInputs = z.infer<typeof schemaToUse>;
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<EventFormInputs>({
     resolver: zodResolver(schemaToUse),
   });
+
   useEffect(() => {
     if (isEdit) {
       API.get<EventResponse>(`/events/${id}`)
@@ -87,6 +93,7 @@ const AddEditEvent: React.FC = () => {
         .catch(() => toast.error("Failed to load event"));
     }
   }, [isEdit, id, setValue]);
+
   const onSubmit = async (data: EventFormInputs) => {
     setLoading(true);
     try {
@@ -128,12 +135,14 @@ const AddEditEvent: React.FC = () => {
       }
     }
   };
+
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50">
       <Toaster />
       <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-lg">
         <h2 className="text-2xl font-semibold mb-6 text-center">{isEdit ? "Edit Event" : "Add New Event"}</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+         
           <div>
             <input type="text" placeholder="Event Name" {...register("name")} className="w-full border p-2 rounded" />
             <p className="text-red-500 text-sm">{errors.name?.message?.toString()}</p>
@@ -142,6 +151,7 @@ const AddEditEvent: React.FC = () => {
             <input type="text" placeholder="Venue" {...register("venue")} className="w-full border p-2 rounded" />
             <p className="text-red-500 text-sm">{errors.venue?.message?.toString()}</p>
           </div>
+
           <div className="flex gap-2">
             <div className="w-1/2">
               <input type="date" {...register("date")} className="w-full border p-2 rounded" />
@@ -157,14 +167,37 @@ const AddEditEvent: React.FC = () => {
             <p className="text-red-500 text-sm">{errors.capacity?.message?.toString()}</p>
           </div>
           <div>
-            <input type="file" accept="image/png, image/jpeg" {...register("image")} className="w-full border p-2 rounded" />
+            <input
+              type="file"
+              accept="image/png, image/jpeg"
+              {...register("image")}
+              className="w-full border p-2 rounded"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                setEventData((prev) => ({ ...prev, image: file || null }));
+              }}
+            />
             <p className="text-red-500 text-sm">{errors.image?.message?.toString()}</p>
+            {(eventData.image || eventData.image_url) && (
+              <div className="mt-2 relative w-40 h-40">
+                <img
+                  src={eventData.image ? URL.createObjectURL(eventData.image) : eventData.image_url}
+                  alt="Preview"
+                  className="rounded w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                  onClick={() => {
+                    setValue("image", null);
+                    setEventData((prev) => ({ ...prev, image: null, image_url: "" }));
+                  }}
+                >
+                  X
+                </button>
+              </div>
+            )}
           </div>
-          {eventData.image_url && !eventData.image && (
-            <div className="mt-2">
-              <img src={eventData.image_url} alt="Event" className="rounded w-full h-40 object-cover" />
-            </div>
-          )}
           <button
             type="submit"
             disabled={loading}
@@ -177,4 +210,5 @@ const AddEditEvent: React.FC = () => {
     </div>
   );
 };
+
 export default AddEditEvent;
