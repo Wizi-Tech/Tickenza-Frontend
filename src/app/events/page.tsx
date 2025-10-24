@@ -22,6 +22,8 @@ interface EventData extends EventResponse {
 
 const MAX_FILE_SIZE = 500 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png"];
+
+// CREATE EVENT SCHEMA
 const createEventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   venue: z.string().min(1, "Venue is required"),
@@ -30,10 +32,12 @@ const createEventSchema = z.object({
   capacity: z.string().min(1, "Capacity is required"),
   image: z
     .any()
-    .refine((file) => file instanceof File, "Image is required")
-    .refine((file) => file instanceof File && ACCEPTED_IMAGE_TYPES.includes(file.type), "Only PNG/JPEG format allowed")
-    .refine((file) => file instanceof File && file.size <= MAX_FILE_SIZE, "File must be ≤ 500KB"),
+    .refine((files) => files?.length > 0, "Image is required") // must select a file
+    .refine((files) => !files || ACCEPTED_IMAGE_TYPES.includes(files[0]?.type), "Only PNG/JPEG format allowed")
+    .refine((files) => !files || files[0]?.size <= MAX_FILE_SIZE, "File must be ≤ 500KB"),
 });
+
+// EDIT EVENT SCHEMA
 const editEventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   venue: z.string().min(1, "Venue is required"),
@@ -43,14 +47,8 @@ const editEventSchema = z.object({
   image: z
     .any()
     .optional()
-    .refine(
-      (file) => !file || (file instanceof File && ACCEPTED_IMAGE_TYPES.includes(file.type)),
-      "Only PNG/JPEG format allowed"
-    )
-    .refine(
-      (file) => !file || (file instanceof File && file.size <= MAX_FILE_SIZE),
-      "File must be ≤ 500KB"
-    ),
+    .refine((files) => !files || ACCEPTED_IMAGE_TYPES.includes(files[0]?.type), "Only PNG/JPEG format allowed")
+    .refine((files) => !files || files[0]?.size <= MAX_FILE_SIZE, "File must be ≤ 500KB"),
 });
 
 const AddEditEvent: React.FC = () => {
@@ -106,9 +104,9 @@ const AddEditEvent: React.FC = () => {
     setLoading(true);
     try {
       let imageUrl = eventData.image_url || "";
-      if (data.image instanceof File) {
+      if (data.image && data.image.length > 0 && data.image[0] instanceof File) {
         const imgFormData = new FormData();
-        imgFormData.append("file", data.image);
+        imgFormData.append("file", data.image[0]);
         const uploadRes = await API.post<{ image_url: string }>("/upload-image", imgFormData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
