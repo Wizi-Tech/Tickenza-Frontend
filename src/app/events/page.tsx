@@ -17,36 +17,51 @@ interface EventResponse {
 interface EventData extends EventResponse {
   image: File | null;
 }
-const MAX_FILE_SIZE = 500 * 1024;
+
+const MAX_FILE_SIZE = 500 * 1024; 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png"];
-const eventSchema = (isEdit: boolean) =>
-  z.object({
-    name: z.string().min(1, "Event name is required"),
-    venue: z.string().min(1, "Venue is required"),
-    date: z.string().min(1, "Date is required"),
-    time: z.string().min(1, "Time is required"),
-    capacity: z.string().min(1, "Capacity is required"),
-    image: isEdit
-      ? z.any().nullable() 
-      : z
-          .any()
-          .refine((file) => file, "Image is required")
-          .refine(
-            (file) => file && ACCEPTED_IMAGE_TYPES.includes(file.type),
-            "Only PNG/JPEG format allowed"
-          )
-          .refine(
-            (file) => file && file.size <= MAX_FILE_SIZE,
-            "File must be ≤ 500KB"
-          )
-          .nullable(),
-  });
-type EventFormInputs = z.infer<ReturnType<typeof eventSchema>>;
+const createEventSchema = z.object({
+  name: z.string().min(1, "Event name is required"),
+  venue: z.string().min(1, "Venue is required"),
+  date: z.string().min(1, "Date is required"),
+  time: z.string().min(1, "Time is required"),
+  capacity: z.string().min(1, "Capacity is required"),
+  image: z
+    .any()
+    .refine((file) => file !== null && file instanceof File, "Image is required")
+    .refine(
+      (file) => file && ACCEPTED_IMAGE_TYPES.includes(file.type),
+      "Only PNG/JPEG format allowed"
+    )
+    .refine(
+      (file) => file && file.size <= MAX_FILE_SIZE,
+      "File must be ≤ 500KB"
+    ),
+});
+const editEventSchema = z.object({
+  name: z.string().min(1, "Event name is required"),
+  venue: z.string().min(1, "Venue is required"),
+  date: z.string().min(1, "Date is required"),
+  time: z.string().min(1, "Time is required"),
+  capacity: z.string().min(1, "Capacity is required"),
+  image: z
+    .any()
+    .nullable()
+    .refine(
+      (file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type),
+      "Only PNG/JPEG format allowed"
+    )
+    .refine(
+      (file) => !file || file.size <= MAX_FILE_SIZE,
+      "File must be ≤ 500KB"
+    ),
+});
 const AddEditEvent: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get("id");
-  const isEdit = !!id; 
+  const isEdit = !!id;
+  const schemaToUse = isEdit ? editEventSchema : createEventSchema;
   const [loading, setLoading] = useState(false);
   const [eventData, setEventData] = useState<EventData>({
     name: "",
@@ -57,13 +72,14 @@ const AddEditEvent: React.FC = () => {
     image: null,
     image_url: "",
   });
+  type EventFormInputs = z.infer<typeof schemaToUse>;
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
   } = useForm<EventFormInputs>({
-    resolver: zodResolver(eventSchema(isEdit)),
+    resolver: zodResolver(schemaToUse),
   });
   useEffect(() => {
     if (isEdit) {
@@ -121,8 +137,7 @@ const AddEditEvent: React.FC = () => {
         setLoading(false);
         router.push("/events/eventlist");
       }, 1500);
-    } catch (error: unknown) {
-      const err = error as any;
+    } catch (err: any) {
       console.error(err);
       setLoading(false);
       if (err.response?.status === 403) {
@@ -183,4 +198,5 @@ const AddEditEvent: React.FC = () => {
     </div>
   );
 };
+
 export default AddEditEvent;
