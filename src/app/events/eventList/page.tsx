@@ -37,8 +37,7 @@ const EventList = () => {
     <div className="max-w-5xl mx-auto mt-10 p-6 border rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4 text-center">Event List</h2>
       <div className="flex justify-between mb-4">
-        <Link
-          href="/events"
+        <Link href="/events"
           className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
         >
           Add Event

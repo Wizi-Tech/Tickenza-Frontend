@@ -28,7 +28,7 @@ const createEventSchema = z.object({
   capacity: z.string().min(1, "Capacity is required"),
   image: z
     .any()
-    .refine((files) => files?.length > 0, "Image is required") // must select a file
+    .refine((files) => files?.length > 0, "Image is required") 
     .refine((files) => !files || ACCEPTED_IMAGE_TYPES.includes(files[0]?.type), "Only PNG/JPEG format allowed")
     .refine((files) => !files || files[0]?.size <= MAX_FILE_SIZE, "File must be ≤ 500KB"),
 });
