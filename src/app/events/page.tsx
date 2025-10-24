@@ -15,15 +15,11 @@ interface EventResponse {
   capacity: string;
   image_url?: string;
 }
-
 interface EventData extends EventResponse {
   image: File | null;
 }
-
 const MAX_FILE_SIZE = 500 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png"];
-
-// CREATE EVENT SCHEMA
 const createEventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   venue: z.string().min(1, "Venue is required"),
@@ -36,8 +32,6 @@ const createEventSchema = z.object({
     .refine((files) => !files || ACCEPTED_IMAGE_TYPES.includes(files[0]?.type), "Only PNG/JPEG format allowed")
     .refine((files) => !files || files[0]?.size <= MAX_FILE_SIZE, "File must be ≤ 500KB"),
 });
-
-// EDIT EVENT SCHEMA
 const editEventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   venue: z.string().min(1, "Venue is required"),
@@ -50,15 +44,12 @@ const editEventSchema = z.object({
     .refine((files) => !files || ACCEPTED_IMAGE_TYPES.includes(files[0]?.type), "Only PNG/JPEG format allowed")
     .refine((files) => !files || files[0]?.size <= MAX_FILE_SIZE, "File must be ≤ 500KB"),
 });
-
 const AddEditEvent: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get("id");
   const isEdit = !!id;
-
   const schemaToUse = isEdit ? editEventSchema : createEventSchema;
-
   const [loading, setLoading] = useState(false);
   const [eventData, setEventData] = useState<EventData>({
     name: "",
@@ -69,13 +60,10 @@ const AddEditEvent: React.FC = () => {
     image: null,
     image_url: "",
   });
-
   type EventFormInputs = z.infer<typeof schemaToUse>;
-
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<EventFormInputs>({
     resolver: zodResolver(schemaToUse),
   });
-
   useEffect(() => {
     if (isEdit) {
       API.get<EventResponse>(`/events/${id}`)
@@ -99,7 +87,6 @@ const AddEditEvent: React.FC = () => {
         .catch(() => toast.error("Failed to load event"));
     }
   }, [isEdit, id, setValue]);
-
   const onSubmit = async (data: EventFormInputs) => {
     setLoading(true);
     try {
@@ -112,7 +99,6 @@ const AddEditEvent: React.FC = () => {
         });
         imageUrl = uploadRes.data.image_url;
       }
-
       const payload = {
         name: data.name,
         venue: data.venue,
@@ -121,7 +107,6 @@ const AddEditEvent: React.FC = () => {
         capacity: data.capacity,
         image_url: imageUrl,
       };
-
       if (isEdit) {
         await API.put(`/events/${id}`, payload);
         toast.success("Event updated successfully!");
@@ -129,7 +114,6 @@ const AddEditEvent: React.FC = () => {
         await API.post("/create-event", payload);
         toast.success("Event created successfully!");
       }
-
       setTimeout(() => {
         setLoading(false);
         router.push("/events/eventlist");
@@ -144,7 +128,6 @@ const AddEditEvent: React.FC = () => {
       }
     }
   };
-
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50">
       <Toaster />
@@ -194,5 +177,4 @@ const AddEditEvent: React.FC = () => {
     </div>
   );
 };
-
 export default AddEditEvent;
