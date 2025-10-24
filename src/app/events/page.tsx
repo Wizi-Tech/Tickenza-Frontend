@@ -6,6 +6,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 interface EventResponse {
   name: string;
   venue: string;
@@ -14,12 +15,14 @@ interface EventResponse {
   capacity: string;
   image_url?: string;
 }
+
 interface EventData extends EventResponse {
   image: File | null;
 }
 
-const MAX_FILE_SIZE = 500 * 1024; 
+const MAX_FILE_SIZE = 500 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png"];
+
 const createEventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   venue: z.string().min(1, "Venue is required"),
@@ -27,17 +30,11 @@ const createEventSchema = z.object({
   time: z.string().min(1, "Time is required"),
   capacity: z.string().min(1, "Capacity is required"),
   image: z
-    .any()
-    .refine((file) => file instanceof File, "Image is required")
-    .refine(
-      (file) =>ACCEPTED_IMAGE_TYPES.includes(file.type),
-      "Only PNG/JPEG format allowed"
-    )
-    .refine(
-      (file) => file.size <= MAX_FILE_SIZE,
-      "File must be ≤ 500KB"
-    ),
+    .instanceof(File, { message: "Image is required" })
+    .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), "Only PNG/JPEG format allowed")
+    .refine((file) => file.size <= MAX_FILE_SIZE, "File must be ≤ 500KB"),
 });
+
 const editEventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   venue: z.string().min(1, "Venue is required"),
@@ -46,22 +43,22 @@ const editEventSchema = z.object({
   capacity: z.string().min(1, "Capacity is required"),
   image: z
     .any()
-    .nullable()
+    .optional()
     .refine(
       (file) => !file || (file instanceof File && ACCEPTED_IMAGE_TYPES.includes(file.type)),
       "Only PNG/JPEG format allowed"
     )
-    .refine(
-      (file) => !file || (file instanceof File && file.size <= MAX_FILE_SIZE),
-      "File must be ≤ 500KB"
-    ),
+    .refine((file) => !file || (file instanceof File && file.size <= MAX_FILE_SIZE), "File must be ≤ 500KB"),
 });
+
 const AddEditEvent: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get("id");
   const isEdit = !!id;
+
   const schemaToUse = isEdit ? editEventSchema : createEventSchema;
+
   const [loading, setLoading] = useState(false);
   const [eventData, setEventData] = useState<EventData>({
     name: "",
@@ -72,15 +69,13 @@ const AddEditEvent: React.FC = () => {
     image: null,
     image_url: "",
   });
+
   type EventFormInputs = z.infer<typeof schemaToUse>;
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-  } = useForm<EventFormInputs>({
+
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<EventFormInputs>({
     resolver: zodResolver(schemaToUse),
   });
+
   useEffect(() => {
     if (isEdit) {
       API.get<EventResponse>(`/events/${id}`)
@@ -104,6 +99,7 @@ const AddEditEvent: React.FC = () => {
         .catch(() => toast.error("Failed to load event"));
     }
   }, [isEdit, id, setValue]);
+
   const onSubmit = async (data: EventFormInputs) => {
     setLoading(true);
     try {
@@ -111,13 +107,12 @@ const AddEditEvent: React.FC = () => {
       if (data.image instanceof File) {
         const imgFormData = new FormData();
         imgFormData.append("file", data.image);
-        const uploadRes = await API.post<{ image_url: string }>(
-          "/upload-image",
-          imgFormData,
-          { headers: { "Content-Type": "multipart/form-data" } }
-        );
+        const uploadRes = await API.post<{ image_url: string }>("/upload-image", imgFormData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
         imageUrl = uploadRes.data.image_url;
       }
+
       const payload = {
         name: data.name,
         venue: data.venue,
@@ -126,6 +121,7 @@ const AddEditEvent: React.FC = () => {
         capacity: data.capacity,
         image_url: imageUrl,
       };
+
       if (isEdit) {
         await API.put(`/events/${id}`, payload);
         toast.success("Event updated successfully!");
@@ -133,6 +129,7 @@ const AddEditEvent: React.FC = () => {
         await API.post("/create-event", payload);
         toast.success("Event created successfully!");
       }
+
       setTimeout(() => {
         setLoading(false);
         router.push("/events/eventlist");
@@ -147,13 +144,12 @@ const AddEditEvent: React.FC = () => {
       }
     }
   };
+
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50">
       <Toaster />
       <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-lg">
-        <h2 className="text-2xl font-semibold mb-6 text-center">
-          {isEdit ? "Edit Event" : "Add New Event"}
-        </h2>
+        <h2 className="text-2xl font-semibold mb-6 text-center">{isEdit ? "Edit Event" : "Add New Event"}</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <input type="text" placeholder="Event Name" {...register("name")} className="w-full border p-2 rounded" />
