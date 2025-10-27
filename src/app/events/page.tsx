@@ -104,7 +104,7 @@ const AddEditEvent: React.FC = () => {
         venue: data.venue,
         date: data.date,
         time: data.time,
-        capacity: data.capacity,
+        capacity: Number(data.capacity),
         image_url: imageUrl,
       };
       if (isEdit) {
@@ -153,7 +153,7 @@ const AddEditEvent: React.FC = () => {
             </div>
           </div>
           <div>
-            <input type="number" placeholder="Capacity" {...register("capacity")} className="w-full border p-2 rounded" />
+            <input type="number" placeholder="Capacity" {...register("capacity", { valueAsNumber: true })} className="w-full border p-2 rounded" />
             <p className="text-red-500 text-sm">{errors.capacity?.message?.toString()}</p>
           </div>
           <div>
