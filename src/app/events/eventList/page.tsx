@@ -25,7 +25,7 @@ const EventList = () => {
   };
 
   const handleDelete = async (id: string) => {
-    const isConfirmed = confirm("Are you sure you want to delete this event?");
+    const isConfirmed = confirm("Are you sure to delete this event?");
     if (!isConfirmed) return;
 
     try {
@@ -103,9 +103,7 @@ const EventList = () => {
                   </Link>
                   <button
                     onClick={() => handleDelete(event.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                  >
-                    Delete
+                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-red-600">Delete
                   </button>
                 </td>
               </tr>
