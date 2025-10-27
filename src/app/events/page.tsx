@@ -90,7 +90,7 @@ const AddEditEvent: React.FC = () => {
   const onSubmit = async (data: EventFormInputs) => {
     setLoading(true);
     try {
-      let imageUrl = eventData.image_url || "";
+      let imageUrl = eventData.image_url;
       if (data.image && data.image.length > 0 && data.image[0] instanceof File) {
         const imgFormData = new FormData();
         imgFormData.append("file", data.image[0]);
