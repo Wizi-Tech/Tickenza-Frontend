@@ -54,6 +54,16 @@ const MainNav2: FC<MainNav2Props> = ({ className = "" }) => {
               </button>
             )}
 
+            {user && (
+              <button
+                className="bg-primary-500 text-white rounded-lg px-4 py-2"
+                onClick={() => router.push("/ticket type")}
+              >
+                TicketType
+              </button>
+            )}
+
+
             <AvatarDropdown />
           </div>
           <div className="flex space-x-2 lg:hidden">

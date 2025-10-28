@@ -1,105 +1,98 @@
 "use client";
 
-import { useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import toast from "react-hot-toast";
-import { TicketService } from "@/services/ticketService";
-
-type Ticket = {
-  type_name: string;
-  price: string;
-  total_quantity: string;
-};
-
-export default function TicketTypePage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const eventId = searchParams.get("event_id");
-
-  const [tickets, setTickets] = useState<Ticket[]>([
-    { type_name: "Normal", price: "", total_quantity: "" },
-    { type_name: "VIP", price: "", total_quantity: "" },
-    { type_name: "Student", price: "", total_quantity: "" },
-  ]);
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleChange = (index: number, field: keyof Ticket, value: string) => {
-    const updated = [...tickets];
-    updated[index][field] = value;
-    setTickets(updated);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!eventId) {
-      toast.error("Event ID is missing!");
-      return;
-    }
-
-    setIsLoading(true);
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import API from "@/services/api";
+import toast, { Toaster } from "react-hot-toast";
+interface TicketType {
+  ticketTypeId: string;
+  ticketTypeName: string;
+  ticketPrice: number;
+  ticketDescription: string;
+}
+const TicketTypeList = () => {
+  const [ticketTypes, setTicketTypes] = useState<TicketType[]>([]);
+  const fetchTicketTypes = async () => {
     try {
-      for (const ticket of tickets) {
-        const price = Number(ticket.price);
-        const quantity = Number(ticket.total_quantity);
-
-        if (!price || !quantity) {
-          toast.error(`Invalid values for ${ticket.type_name} ticket`);
-          continue;
-        }
-
-        await TicketService.create({
-          event_id: Number(eventId),
-          type_name: ticket.type_name,
-          price,
-          total_quantity: quantity,
-        });
-      }
-
-      toast.success("Ticket types saved successfully!");
-      router.push("/events");
+      const response = await API.get("/ticket-types");
+      setTicketTypes(response.data as any);
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to save tickets");
-    } finally {
-      setIsLoading(false);
+      console.error("Error fetching ticket types:", error);
+      toast.error("Failed to load ticket types.");
     }
   };
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you want to delete this ticket type?")) return;
+
+    try {
+      await API.delete(`/ticket-types/${id}`);
+      toast.success("Ticket type deleted successfully!");
+      fetchTicketTypes();
+    } catch (error) {
+      console.error("Error deleting ticket type:", error);
+      toast.error("Failed to delete ticket type.");
+    }
+  };
+
+  useEffect(() => {
+    fetchTicketTypes();
+  }, []);
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-lg shadow-lg w-[400px] space-y-4"
-      >
-        <h2 className="text-2xl font-bold text-center">Create Ticket Types</h2>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Ticket Types</h1>
+      <div className="mb-4 flex justify-end">
+        <Link
+          href="/ticket-type/create"
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Create Ticket Type
+        </Link>
+      </div>
 
-        {tickets.map((ticket, index) => (
-          <div key={index} className="border p-3 rounded-md space-y-2">
-            <h3 className="font-semibold">{ticket.type_name} Ticket</h3>
-            <Input
-              type="number"
-              placeholder="Price"
-              value={ticket.price}
-              onChange={(e) => handleChange(index, "price", e.target.value)}
-            />
-            <Input
-              type="number"
-              placeholder="Total Quantity"
-              value={ticket.total_quantity}
-              onChange={(e) =>
-                handleChange(index, "total_quantity", e.target.value)
-              }
-            />
-          </div>
-        ))}
-
-        <Button type="submit" className="w-full bg-blue-600 text-white" disabled={isLoading}>
-          {isLoading ? "Saving..." : "Save Tickets"}
-        </Button>
-      </form>
+      <table className="w-full border">
+        <thead>
+          <tr className="bg-gray-100 text-left">
+            <th className="border p-2">Name</th>
+            <th className="border p-2">Price</th>
+            <th className="border p-2">Description</th>
+            <th className="border p-2 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {ticketTypes.length > 0 ? (
+            ticketTypes.map((ticket) => (
+              <tr key={ticket.ticketTypeId}>
+                <th className="border p-2">{ticket.ticketTypeName}</th>
+                <td className="border p-2">₹{ticket.ticketPrice}</td>
+                <td className="border p-2">{ticket.ticketDescription}</td>
+                <td className="border p-2 text-center flex gap-2 justify-center">
+                  <Link
+                    href={`/ticket-type/edit/${ticket.ticketTypeId}`}
+                    className="bg-yellow-500 text-white px-3 py-1 rounded"
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(ticket.ticketTypeId)}
+                    className="bg-red-600 text-white px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={4} className="text-center p-4">
+                No ticket types found.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
-}
+};
+
+export default TicketTypeList;
