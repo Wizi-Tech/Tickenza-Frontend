@@ -48,7 +48,7 @@ const MainNav2: FC<MainNav2Props> = ({ className = "" }) => {
             {user && (
               <button
                 className="bg-primary-500 text-white rounded-lg px-4 py-2"
-                onClick={() => router.push("/events")}
+                onClick={() => router.push("/events/eventlist")}
               >
                 Events
               </button>
