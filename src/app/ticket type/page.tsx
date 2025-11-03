@@ -23,7 +23,6 @@ const TicketTypeList = () => {
   };
   const handleDelete = async (id: string) => {
     if (!confirm("Are you want to delete this ticket type?")) return;
-
     try {
       await API.delete(`/ticket-types/${id}`);
       toast.success("Ticket type deleted successfully!");
