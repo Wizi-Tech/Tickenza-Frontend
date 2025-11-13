@@ -6,7 +6,6 @@ import ButtonPrimary from "@/shared/ButtonPrimary";
 import MenuBar from "@/shared/MenuBar";
 import SwitchDarkMode from "@/shared/SwitchDarkMode";
 import HeroSearchForm2MobileFactory from "../(HeroSearchForm2Mobile)/HeroSearchForm2MobileFactory";
-import LangDropdown from "./LangDropdown";
 
 export interface MainNav1Props {
   className?: string;

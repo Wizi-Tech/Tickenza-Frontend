@@ -57,7 +57,7 @@ export default function AvatarDropdown({ className = "" }: Props) {
               <div className="overflow-hidden rounded-3xl shadow-lg ring-1 ring-black ring-opacity-5">
                 <div className="relative grid grid-cols-1 gap-6 bg-white dark:bg-neutral-800 py-7 px-6">
                   
-                  {/* User Info */}
+                 
                   <div className="flex items-center space-x-3">
                     <Avatar sizeClass="w-12 h-12" />
                     <div className="flex-grow">
@@ -68,7 +68,6 @@ export default function AvatarDropdown({ className = "" }: Props) {
 
                   <div className="w-full border-b border-neutral-200 dark:border-neutral-700" />
 
-                  {/* Links (same as before) */}
                   <Link href="/account" onClick={() => close()} className="flex items-center p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg">
                     My Account
                   </Link>
@@ -81,17 +80,15 @@ export default function AvatarDropdown({ className = "" }: Props) {
 
                   <div className="w-full border-b border-neutral-200 dark:border-neutral-700" />
 
-                  {/* Dark mode switch */}
                   <div className="flex items-center justify-between p-2">
                     <p className="text-sm font-medium">Dark theme</p>
                     <SwitchDarkMode2 />
                   </div>
 
-                  {/* Logout */}
                   <button
                     onClick={() => {
                       clearUser();
-                      router.push("/signin");
+                       setTimeout(() => router.push("/signin"),3);
                       close();
                     }}
                     className="flex items-center p-2 text-red-500 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg"
