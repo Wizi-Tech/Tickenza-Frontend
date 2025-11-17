@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import API from "@/services/api";
 import toast, { Toaster } from "react-hot-toast";
@@ -8,30 +8,27 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+interface TicketType {
+  name: string;
+  price: number | string;
+  quantity: number | string;
+}
+
 interface EventResponse {
-  id?: number;
   name: string;
   venue: string;
   date: string;
   time: string;
   capacity: string;
   image_url?: string;
+  ticket_types: TicketType[]; 
 }
-
 interface EventData extends EventResponse {
   image: File | null;
 }
 
-interface CreateEventResponse {
-  id?: number;
-  event?: {
-    id: number;
-  };
-}
-
 const MAX_FILE_SIZE = 500 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png"];
-
 const createEventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   venue: z.string().min(1, "Venue is required"),
@@ -47,10 +44,9 @@ const createEventSchema = z.object({
     )
     .refine(
       (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-      "File must be ≤ 500 KB"
+      "File must be ≤ 500KB"
     ),
 });
-
 const editEventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   venue: z.string().min(1, "Venue is required"),
@@ -60,28 +56,17 @@ const editEventSchema = z.object({
   image: z.any().optional(),
 });
 
-interface TicketType {
-  id: number;
-  name: string;
-}
-
-const TICKET_TYPES: TicketType[] = [
-  { id: 1, name: "Student" },
-  { id: 2, name: "General" },
-  { id: 3, name: "Silver" },
-  { id: 4, name: "Gold" },
-  { id: 5, name: "Platinum" },
-];
-
 const AddEditEvent: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get("id");
   const isEdit = !!id;
   const schemaToUse = isEdit ? editEventSchema : createEventSchema;
-
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEdit);
+  const [ticketTypes, setTicketTypes] = useState<TicketType[]>([
+    { name: "", price: "", quantity: "" },
+  ]);
   const [eventData, setEventData] = useState<EventData>({
     name: "",
     venue: "",
@@ -90,30 +75,18 @@ const AddEditEvent: React.FC = () => {
     capacity: "",
     image: null,
     image_url: "",
+    ticket_types: [],
   });
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [selectedTicketTypeIds, setSelectedTicketTypeIds] = useState<number[]>([]);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
+  type EventFormInputs = z.infer<typeof schemaToUse>;
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm({
+  } = useForm<EventFormInputs>({
     resolver: zodResolver(schemaToUse) as any,
   });
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   useEffect(() => {
     const fetchEvent = async () => {
       if (!isEdit) return;
@@ -122,30 +95,51 @@ const AddEditEvent: React.FC = () => {
         const res = await API.get<EventResponse>(`/events/${id}`);
         const data = res.data;
         setEventData({
-          ...data,
+          name: data.name,
+          venue: data.venue,
+          date: data.date,
+          time: data.time,
+          capacity: data.capacity,
           image: null,
           image_url: data.image_url || "",
+          ticket_types: data.ticket_types || [],
         });
         setValue("name", data.name);
         setValue("venue", data.venue);
         setValue("date", data.date);
         setValue("time", data.time);
         setValue("capacity", Number(data.capacity));
-      } catch {
+        if (data.ticket_types?.length > 0) {
+          setTicketTypes(
+            data.ticket_types.map((t) => ({
+              ...t,
+              price: String(t.price),
+              quantity: String(t.quantity),
+            }))
+          );
+        }
+
+      } catch (error) {
         toast.error("Failed to load event");
       } finally {
         setFetching(false);
       }
     };
+
     fetchEvent();
   }, [isEdit, id, setValue]);
-
-  const toggleTicketType = (id: number) =>
-    setSelectedTicketTypeIds((prev) =>
-      prev.includes(id) ? prev.filter((tid) => tid !== id) : [...prev, id]
-    );
-
-  const onSubmit = async (data: any) => {
+  const addTicketType = () =>
+    setTicketTypes([...ticketTypes, { name: "", price: "", quantity: "" }]);
+  const removeTicketType = (index: number) => {
+    const list = ticketTypes.filter((_, i) => i !== index);
+    setTicketTypes(list.length ? list : [{ name: "", price: "", quantity: "" }]);
+  };
+  const updateTicketType = (index: number, field: keyof TicketType, value: string) => {
+    const updated = [...ticketTypes];
+    updated[index][field] = value;
+    setTicketTypes(updated);
+  };
+  const onSubmit = async (data: EventFormInputs) => {
     setLoading(true);
     try {
       let imageUrl = eventData.image_url;
@@ -159,7 +153,6 @@ const AddEditEvent: React.FC = () => {
         );
         imageUrl = uploadRes.data.image_url;
       }
-
       const payload = {
         name: data.name,
         venue: data.venue,
@@ -167,38 +160,37 @@ const AddEditEvent: React.FC = () => {
         time: data.time,
         capacity: Number(data.capacity),
         image_url: imageUrl,
-        ticket_type_ids: selectedTicketTypeIds,
+        ticket_types: ticketTypes
+          .filter((t) => t.name && t.price && t.quantity)
+          .map((t) => ({
+            name: t.name,
+            price: Number(t.price),
+            quantity: Number(t.quantity),
+          })),
       };
-
       if (isEdit) {
         await API.put(`/events/${id}`, payload);
         toast.success("Event updated successfully!");
-        router.push("/events/eventList");
       } else {
-        const res = await API.post<CreateEventResponse>("/create-event", payload);
-        const eventId = Number(res.data?.id ?? res.data?.event?.id ?? 0);
-        if (!eventId) throw new Error("No event id returned from backend");
-
+        await API.post("/create-event", payload);
         toast.success("Event created successfully!");
-       router.push(`/ticket-type?event_id=${eventId}`);
       }
+      setTimeout(() => router.push("/events/eventList"), 500);
     } catch (err: any) {
-      console.error(err);
-      toast.error(err.response?.data?.detail || "Failed to create event");
+      console.log(err);
+      toast.error("Failed to create event");
     } finally {
       setLoading(false);
     }
   };
-
   if (fetching) {
     return (
-      <div className="min-h-screen flex flex-col gap-4 justify-center items-center bg-gray-50">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
-        <p className="text-xl font-semibold text-gray-700">Loading event details...</p>
+        <p className="text-lg font-semibold mt-3">Loading event...</p>
       </div>
     );
   }
-
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50">
       <Toaster />
@@ -206,24 +198,25 @@ const AddEditEvent: React.FC = () => {
         <h2 className="text-2xl font-semibold mb-6 text-center">
           {isEdit ? "Edit Event" : "Add New Event"}
         </h2>
-
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Event Name"
-            {...register("name")}
-            className="w-full border p-2 rounded"
-          />
-          <p className="text-red-500 text-sm">{errors.name?.message?.toString()}</p>
-
-          <input
-            type="text"
-            placeholder="Venue"
-            {...register("venue")}
-            className="w-full border p-2 rounded"
-          />
-          <p className="text-red-500 text-sm">{errors.venue?.message?.toString()}</p>
-
+          <div>
+            <input
+              type="text"
+              placeholder="Event Name"
+              {...register("name")}
+              className="w-full border p-2 rounded"
+            />
+            <p className="text-red-500 text-sm">{errors.name?.message?.toString()}</p>
+          </div>
+          <div>
+            <input
+              type="text"
+              placeholder="Venue"
+              {...register("venue")}
+              className="w-full border p-2 rounded"
+            />
+            <p className="text-red-500 text-sm">{errors.venue?.message?.toString()}</p>
+          </div>
           <div className="flex gap-2">
             <div className="w-1/2">
               <input
@@ -243,79 +236,82 @@ const AddEditEvent: React.FC = () => {
               <p className="text-red-500 text-sm">{errors.time?.message?.toString()}</p>
             </div>
           </div>
+          <div>
+            <input
+              type="number"
+              placeholder="Capacity"
+              {...register("capacity")}
+              className="w-full border p-2 rounded"
+            />
+            <p className="text-red-500 text-sm">{errors.capacity?.message?.toString()}</p>
+          </div>
+          <div>
+            <input
+              type="file"
+              accept="image/png, image/jpeg"
+              {...register("image")}
+              className="w-full border p-2 rounded"
+            />
+            <p className="text-red-500 text-sm">{errors.image?.message?.toString()}</p>
+          </div>
 
-          <input
-            type="number"
-            placeholder="Capacity"
-            {...register("capacity")}
-            className="w-full border p-2 rounded"
-          />
-          <p className="text-red-500 text-sm">{errors.capacity?.message?.toString()}</p>
-
-          <input
-            type="file"
-            accept="image/png, image/jpeg"
-            {...register("image")}
-            className="w-full border p-2 rounded"
-          />
-          <p className="text-red-500 text-sm">{errors.image?.message?.toString()}</p>
-
-          {eventData.image_url && !eventData.image && (
+          {eventData.image_url && (
             <img
               src={eventData.image_url}
               alt="Event"
-              className="rounded w-full h-40 object-cover mt-2"
+              className="mt-2 w-full h-40 rounded object-cover"
             />
           )}
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-2">Ticket Types</h3>
+            {ticketTypes.map((ticket, index) => (
+              <div key={index} className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={ticket.name}
+                  onChange={(e) => updateTicketType(index, "name", e.target.value)}
+                  className="border p-2 rounded w-1/3"
+                />
+                <input
+                  type="number"
+                  placeholder="Price"
+                  value={ticket.price}
+                  onChange={(e) => updateTicketType(index, "price", e.target.value)}
+                  className="border p-2 rounded w-1/3"
+                />
+                <input
+                  type="number"
+                  placeholder="Quantity"
+                  value={ticket.quantity}
+                  onChange={(e) => updateTicketType(index, "quantity", e.target.value)}
+                  className="border p-2 rounded w-1/3"
+                />
+                {ticketTypes.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeTicketType(index)}
+                    className="bg-blue-600 text-white px-2 rounded"
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            ))}
 
-          <div className="relative mt-4" ref={dropdownRef}>
-            <label className="font-semibold mb-1 block">Select Ticket Types:</label>
             <button
               type="button"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="w-full border p-2 rounded text-left flex justify-between items-center cursor-pointer"
+              onClick={addTicketType}
+              className="bg-green-600 text-white px-3 py-1 rounded mt-2"
             >
-              {selectedTicketTypeIds.length > 0
-                ? TICKET_TYPES.filter((t) => selectedTicketTypeIds.includes(t.id))
-                    .map((t) => t.name)
-                    .join(", ")
-                : "Select Ticket Types"}
-              <svg
-                className={`w-4 h-4 ml-2 transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
+              + Add Ticket Type
             </button>
-
-            {dropdownOpen && (
-              <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-60 overflow-auto">
-                {TICKET_TYPES.map((type) => (
-                  <label
-                    key={type.id}
-                    className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedTicketTypeIds.includes(type.id)}
-                      onChange={() => toggleTicketType(type.id)}
-                      className="mr-2"
-                    />
-                    {type.name}
-                  </label>
-                ))}
-              </div>
-            )}
           </div>
-
           <button
             type="submit"
             disabled={loading}
-            className={`w-full text-white p-2 rounded mt-4 transition ${
-              loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+            className={`w-full text-white p-2 rounded ${
+              loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
             {loading ? "Loading..." : isEdit ? "Update Event" : "Create Event"}
