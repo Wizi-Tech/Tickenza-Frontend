@@ -291,8 +291,7 @@ const AddEditEvent: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => removeTicketType(index)}
-                    className="bg-blue-600 text-white px-2 rounded"
-                  >
+                    className="bg-blue-600 text-white px-2 rounded">
                     Delete
                   </button>
                 )}
