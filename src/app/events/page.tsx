@@ -297,7 +297,6 @@ const AddEditEvent: React.FC = () => {
                 )}
               </div>
             ))}
-
             <button
               type="button"
               onClick={addTicketType}
