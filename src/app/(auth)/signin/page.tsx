@@ -13,7 +13,7 @@ import { AuthService } from "@/services/authService";
 type AuthResponse = {
   name: string;
   email: string;
-  role: string;
+  role: "Admin" | "User";
   access_token: string; 
   token_type: string;
   message: string;
@@ -55,6 +55,7 @@ export default function SigninPage() {
           name: user.name,
           username: user.email,
           token: user.access_token,
+          role: user.role,  
         });
 
         toast.success("Login Successful");
