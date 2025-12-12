@@ -130,24 +130,8 @@ export default function MyBookingsPage() {
             </div>
             <div className="space-y-2">
               <p><b>Booked On:</b> {new Date(item.booked_at).toLocaleString()}</p>
-              <div className="space-y-2">
-                <p><b>Booked On:</b> {new Date(item.booked_at).toLocaleString()}</p>
-                <p><b>No. of Tickets:</b> {item.number_of_tickets}</p>
-                <p><b>Ticket Type ID:</b> {item.ticket_type_id}</p>
-                <p><b>Total Amount:</b> ₹{item.total_amount}</p>
-                <p>
-                  <b>Payment Status:</b>{" "}
-                  <span
-                    className={`px-2 py-1 text-sm rounded-full ${
-                      item.payment_status === "Pending"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-green-100 text-green-700"
-                    }`}
-                  >
-                    {item.payment_status}
-                  </span>
-                </p>
-              </div>
+              <p><b>No. of Tickets:</b> {item.number_of_tickets}</p>
+              <p><b>Ticket Type ID:</b> {item.ticket_type_id}</p>
               <p><b>Total Amount:</b> ₹{item.total_amount}</p>
               <p>
                 <b>Payment Status:</b>{" "}
