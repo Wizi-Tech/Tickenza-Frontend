@@ -193,16 +193,15 @@ export default function BookingFormPage() {
                         type="number"
                         min={0}
                         max={10}
-                        title="You can select up to 10 tickets only"
                         value={t.quantity}
-                        onChange={(e) => handleQuantityChange(t.ticket_type_id, Number(e.target.value))}
+                        title="You can select upto 10 tickets only"
+                        onChange={(e) => handleQuantityChange(t.ticket_type_id, parseInt(e.target.value)||0)}
                         className={`w-20 p-2 border rounded ${blocked ? "bg-gray-100 cursor-not-allowed" : ""}`}
                         disabled={blocked}
                       />
                       <div
                         title=" ⓘ You can select upto 10 tickets only"
                         className="text-gray-500 text-sm select-none"
-                        aria-hidden
                       >
                       </div>
                     </div>
