@@ -41,11 +41,9 @@ const signupSchema = z
   });
 
 type SignupForm = z.infer<typeof signupSchema>;
-
 export default function SignUpPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -53,7 +51,6 @@ export default function SignUpPage() {
   } = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
   });
-
   const onSubmit = async (data: SignupForm) => {
     try {
       const res = await AuthService.signup({
@@ -76,7 +73,6 @@ export default function SignUpPage() {
       if (err.response?.status === 409) {
         errorMessage = "User already exists!";
       }
-
       toast.error(errorMessage);
     }
   };
@@ -84,7 +80,6 @@ export default function SignUpPage() {
   return (
     <>
       <Toaster position="top-center" />
-
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
         <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-md p-4">
           <button
@@ -93,26 +88,20 @@ export default function SignUpPage() {
           >
             ✕
           </button>
-
           <div className="flex justify-center mb-2">
             <img src="/Tickenza.png" alt="Logo" className="h-10 w-10" />
           </div>
-
           <h2 className="text-lg font-bold text-center">Create Account</h2>
           <p className="text-gray-500 text-center text-sm mb-3">
             Please signup to continue
           </p>
-
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
-            {/* Name */}
             <Input
               label="Name"
               placeholder="Enter your name"
               register={register("name")}
               error={errors.name?.message}
             />
-
-            {/* Email */}
             <Input
               label="Email"
               type="email"
@@ -120,8 +109,6 @@ export default function SignUpPage() {
               register={register("email")}
               error={errors.email?.message}
             />
-
-            {/* Password */}
             <PasswordInput
               label="Password"
               show={showPassword}
@@ -129,8 +116,6 @@ export default function SignUpPage() {
               register={register("password")}
               error={errors.password?.message}
             />
-
-            {/* Confirm Password */}
             <PasswordInput
               label="Confirm Password"
               show={showPassword}
@@ -138,8 +123,6 @@ export default function SignUpPage() {
               register={register("confirmPassword")}
               error={errors.confirmPassword?.message}
             />
-
-            {/* Role */}
             <div>
               <label className="text-sm">Role</label>
               <select
@@ -157,7 +140,6 @@ export default function SignUpPage() {
                 <p className="text-red-500 text-xs">{errors.role.message}</p>
               )}
             </div>
-
             <button
               type="submit"
               disabled={isSubmitting}
@@ -166,7 +148,6 @@ export default function SignUpPage() {
               {isSubmitting ? "Loading..." : "Signup"}
             </button>
           </form>
-
           <p className="text-center text-sm mt-2">
             Already have an account?{" "}
             <Link href="/signin" className="text-blue-600 underline">
@@ -178,8 +159,6 @@ export default function SignUpPage() {
     </>
   );
 }
-
-/* ---------- Reusable Inputs ---------- */
 
 function Input({ label, register, error, ...props }: any) {
   return (

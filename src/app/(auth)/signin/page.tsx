@@ -11,7 +11,6 @@ import { useAuthStore } from "@/store/auth";
 import { AuthService } from "@/services/authService";
 import { Eye, EyeOff } from "lucide-react";
 
-// 🔹 API Response Type
 type AuthResponse = {
   name: string;
   email: string;
@@ -21,7 +20,6 @@ type AuthResponse = {
   message: string;
 };
 
-// 🔹 Form Validation Schema
 const signinSchema = z.object({
   email: z
     .string()
@@ -41,12 +39,10 @@ const signinSchema = z.object({
 });
 
 type SigninForm = z.infer<typeof signinSchema>;
-
 export default function SigninPage() {
   const router = useRouter();
   const setUser = useAuthStore((state) => state.setUser);
   const [showPassword, setShowPassword] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -54,24 +50,19 @@ export default function SigninPage() {
   } = useForm<SigninForm>({
     resolver: zodResolver(signinSchema),
   });
-
-  // 🔹 Submit Handler
   const onSubmit = async (data: SigninForm) => {
     try {
       const res = await AuthService.signin(data);
 
       if (res.status === 200) {
         const user = res.data as AuthResponse;
-
         localStorage.setItem("token", user.access_token);
-
         setUser({
           name: user.name,
           username: user.email,
           token: user.access_token,
           role: user.role,
         });
-
         toast.success("Login Successful");
         router.push("/");
       }
@@ -83,29 +74,21 @@ export default function SigninPage() {
       toast.error(errorMessage);
     }
   };
-
   return (
     <>
       <Toaster position="top-center" />
-
       <div className="fixed inset-0 z-50 flex items-center justify-center">
-        {/* Backdrop */}
         <div
           className="absolute inset-0 bg-black/40 backdrop-blur-sm"
           onClick={() => router.push("/")}
         />
-
-        {/* Card */}
         <div className="relative bg-white p-5 rounded-2xl shadow-lg w-full max-w-md z-10">
-          {/* Close Button */}
           <button
             onClick={() => router.push("/")}
             className="absolute top-3 right-3 text-gray-500 hover:text-black font-bold"
           >
             ✕
           </button>
-
-          {/* Logo */}
           <div className="flex justify-center mb-4">
             <img
               src="/Tickenza.png"
@@ -113,17 +96,13 @@ export default function SigninPage() {
               className="h-12 w-12 object-contain"
             />
           </div>
-
           <h2 className="text-lg font-bold text-center mb-1">
             Welcome Back
           </h2>
           <p className="text-gray-500 text-center text-sm mb-4">
             Please login to continue
           </p>
-
-          {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-            {/* Email */}
             <div>
               <label className="text-sm">Email</label>
               <input
@@ -142,8 +121,6 @@ export default function SigninPage() {
                 </p>
               )}
             </div>
-
-            {/* Password */}
             <div>
               <label className="text-sm">Password</label>
               <div className="relative">
@@ -171,8 +148,6 @@ export default function SigninPage() {
                 </p>
               )}
             </div>
-
-            {/* Forgot Password */}
             <div className="text-left">
               <Link
                 href="/forgot-password"
@@ -181,8 +156,6 @@ export default function SigninPage() {
                 Forgot Password?
               </Link>
             </div>
-
-            {/* Submit */}
             <button
               type="submit"
               disabled={isSubmitting}
@@ -191,8 +164,6 @@ export default function SigninPage() {
               {isSubmitting ? "Loading..." : "Login"}
             </button>
           </form>
-
-          {/* Signup */}
           <p className="text-center text-sm mt-3">
             Don't have an account?{" "}
             <Link href="/signup" className="text-blue-600 underline">

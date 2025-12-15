@@ -9,14 +9,11 @@ export type AuthResponse = {
 };
 
 export const AuthService = {
-  // 🔹 Sign In
   signin: (data: { email: string; password: string }) => {
     return API.post<AuthResponse>("/signin", data, {
       headers: { "Content-Type": "application/json" },
     });
   },
-
-  // 🔹 Sign Up
   signup: (data: {
     name: string;
     email: string;
@@ -35,8 +32,6 @@ export const AuthService = {
       headers: { "Content-Type": "application/json" },
     });
   },
-
-  // 🔹 Forgot Password – Send OTP
   forgotPassword: (email: string) => {
     return API.post(
       "/auth/forgot-password",
@@ -44,8 +39,6 @@ export const AuthService = {
       { headers: { "Content-Type": "application/json" } }
     );
   },
-
-  // 🔹 Verify OTP & Reset Password
   verifyOtpAndResetPassword: (data: {
     email: string | null;
     otp: string | null;
