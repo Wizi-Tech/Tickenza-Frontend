@@ -1,9 +1,17 @@
 import API from "./api";
+export type AuthResponse = {
+  name: string;
+  email: string;
+  role: "Admin" | "User";
+  access_token: string;
+  token_type: string;
+  message: string;
+};
 
 export const AuthService = {
   // 🔹 Sign In
   signin: (data: { email: string; password: string }) => {
-    return API.post("/signin", data, {
+    return API.post<AuthResponse>("/signin", data, {
       headers: { "Content-Type": "application/json" },
     });
   },
@@ -33,9 +41,7 @@ export const AuthService = {
     return API.post(
       "/auth/forgot-password",
       { email },
-      {
-        headers: { "Content-Type": "application/json" },
-      }
+      { headers: { "Content-Type": "application/json" } }
     );
   },
 
@@ -48,9 +54,7 @@ export const AuthService = {
     return API.post(
       "/auth/verify-otp",
       data,
-      {
-        headers: { "Content-Type": "application/json" },
-      }
+      { headers: { "Content-Type": "application/json" } }
     );
   },
 };
