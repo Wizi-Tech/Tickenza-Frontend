@@ -1,13 +1,20 @@
 import API from "./api";
 
 export const AuthService = {
+  // 🔹 Sign In
   signin: (data: { email: string; password: string }) => {
     return API.post("/signin", data, {
       headers: { "Content-Type": "application/json" },
     });
   },
 
-  signup: (data: { name: string; email: string; password: string; role: "user" | "admin" }) => {
+  // 🔹 Sign Up
+  signup: (data: {
+    name: string;
+    email: string;
+    password: string;
+    role: "user" | "admin";
+  }) => {
     const payload = {
       name: data.name,
       email: data.email,
@@ -15,8 +22,35 @@ export const AuthService = {
       confirm_password: data.password,
       role: data.role === "admin" ? "Admin" : "User",
     };
+
     return API.post("/register", payload, {
       headers: { "Content-Type": "application/json" },
     });
+  },
+
+  // 🔹 Forgot Password – Send OTP
+  forgotPassword: (email: string) => {
+    return API.post(
+      "/auth/forgot-password",
+      { email },
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  },
+
+  // 🔹 Verify OTP & Reset Password
+  verifyOtpAndResetPassword: (data: {
+    email: string | null;
+    otp: string | null;
+    new_password: string;
+  }) => {
+    return API.post(
+      "/auth/verify-otp",
+      data,
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   },
 };
