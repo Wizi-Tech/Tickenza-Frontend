@@ -5,6 +5,7 @@ interface User {
   name: string;
   username: string;
   token: string;
+   role: "Admin" | "User";
 }
 
 interface AuthState {

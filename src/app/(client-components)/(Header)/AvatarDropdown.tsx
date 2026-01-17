@@ -71,7 +71,7 @@ export default function AvatarDropdown({ className = "" }: Props) {
                   <Link href="/account" onClick={() => close()} className="flex items-center p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg">
                     My Account
                   </Link>
-                  <Link href="/author" onClick={() => close()} className="flex items-center p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg">
+                  <Link href="/bookings/my" onClick={() => close()} className="flex items-center p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg">
                     My Bookings
                   </Link>
                   <Link href="/account-savelists" onClick={() => close()} className="flex items-center p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg">

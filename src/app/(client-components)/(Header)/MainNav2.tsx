@@ -22,21 +22,36 @@ const MainNav2: FC<MainNav2Props> = ({ className = "" }) => {
         <div className="flex items-center space-x-8 flex-1">
           <Logo className="w-24 self-center" />
         </div>
-        {user && (
-          <nav className="hidden md:flex items-center space-x-5 text-gray-700 font-medium">
-            <Link
-              href="/events/eventList"
-              className="hover:text-primary-500 transition-colors"
-            >
-              Events
-            </Link>
-            <Link
-              href="ticket-type/ticketTypeList"
-              className="hover:text-primary-500 transition-colors">
-              Ticket Type
-            </Link>
-          </nav>
-        )}
+      {user && (
+  <nav className="hidden md:flex items-center space-x-5 text-gray-700 font-medium">
+    {user.role === "Admin" && (
+      <>
+        <Link
+          href="/events/eventList"
+          className="hover:text-primary-500 transition-colors"
+        >
+          Events
+        </Link>
+
+        <Link
+          href="/ticket-type/ticketTypeList"
+          className="hover:text-primary-500 transition-colors"
+        >
+          Ticket Type
+        </Link>
+      </>
+    )}
+
+    <Link
+      href="/bookings"
+      className="hover:text-primary-500 transition-colors"
+    >
+      Booking
+    </Link>
+
+  </nav>
+)}
+
         <div className="flex items-center space-x-4">
           <NotifyDropdown />
           <AvatarDropdown />

@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import API from "@/services/api";
@@ -10,65 +11,68 @@ interface Event {
   status?: string;
   image_url?: string;
 }
+
 const EventList = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const res = await API.get("/events");
-      setEvents(res.data as Event[]);
+      const res = await API.get("/admin/events");
+      setEvents(res.data as any);
     } catch (error) {
-      console.error("Error fetching events:", error);
+      console.error("Error loading events");
     } finally {
       setLoading(false);
     }
   };
+
   const handleDelete = async (id: string) => {
-    const isConfirmed = confirm("Are you sure to delete this event?");
-    if (!isConfirmed) return;
+    if (!confirm("Are you sure you want to delete this event?")) return;
+
     try {
-      setLoading(true);
-      await API.delete(`/events/${id}`);
-      alert("Event deleted successfully!");
+      await API.delete(`/admin/events/${id}`);
+      alert("Event deleted successfully");
       fetchEvents();
-    } catch (error) {
-      console.error("Error deleting event:", error);
-      alert("Failed to delete event. Please try again.");
-      setLoading(false);
+    } catch (err) {
+      alert("Failed to delete event");
     }
   };
+
   useEffect(() => {
     fetchEvents();
   }, []);
+
   const searchedEvents = events.filter((event) =>
     event.name.toLowerCase().includes(search.toLowerCase())
   );
+
   return (
     <div className="max-w-5xl mx-auto mt-10 p-6 border rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4 text-center">Event List</h2>
+
       <div className="flex justify-between mb-4">
         <Link
           href="/events"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          className="bg-blue-600 text-white px-4 py-2 rounded"
         >
           Add Event
         </Link>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search event..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border p-2 rounded"
-          />
-        </div>
+
+        <input
+          type="text"
+          placeholder="Search event..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border p-2 rounded"
+        />
       </div>
       {loading ? (
-        <div className="flex flex-col justify-center items-center py-10 gap-3">
-          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-sm text-gray-500">Loading...</p>
+        <div className="flex flex-col items-center py-10 gap-3">
+          <span className="h-10 w-10 block border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+          <p className="text-gray-600">Loading...</p>
         </div>
       ) : (
         <table className="w-full border text-left">
@@ -81,38 +85,37 @@ const EventList = () => {
               <th className="p-2 border">Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {searchedEvents.length > 0 ? (
               searchedEvents.map((event) => (
-                <tr key={event.id} className="border-b hover:bg-gray-50">
+                <tr key={event.id} className="border-b">
                   <td className="p-2 border">
                     {event.image_url ? (
                       <img
                         src={event.image_url}
-                        alt={event.name}
                         className="w-16 h-16 object-cover rounded"
                       />
                     ) : (
-                      <span className="text-gray-400">No Image</span>
+                      "No Image"
                     )}
                   </td>
 
                   <td className="p-2 border">{event.name}</td>
                   <td className="p-2 border">{event.date}</td>
-                  <td className="p-2 border capitalize">
-                    {event.status || "N/A"}
-                  </td>
+                  <td className="p-2 border">{event.status || "N/A"}</td>
 
                   <td className="p-2 border flex gap-2">
                     <Link
                       href={`/events?id=${event.id}`}
-                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                      className="bg-blue-500 text-white px-3 py-1 rounded"
                     >
                       Edit
                     </Link>
+
                     <button
                       onClick={() => handleDelete(event.id)}
-                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                      className="bg-blue-500 text-white px-3 py-1 rounded"
                     >
                       Delete
                     </button>
@@ -121,7 +124,7 @@ const EventList = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="text-center p-4">
+                <td className="text-center p-4" colSpan={5}>
                   No events found
                 </td>
               </tr>
